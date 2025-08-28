@@ -2,19 +2,19 @@ name: PR Tests
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-          
+
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -22,10 +22,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-            
+
       - name: Verify dependencies
         run: go mod verify
-        
+
       - name: Check tidy
         run: |
           go mod tidy
@@ -35,18 +35,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-          
+
       - name: Run Go linting
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           args: --timeout=5m
-          
+
       - name: Check pre-commit
         uses: pre-commit/action@v3.0.0
 
@@ -55,12 +55,12 @@ jobs:
     needs: [validate, lint]
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-          
+
       - name: Cache Go modules
         uses: actions/cache@v4
         with:
@@ -68,10 +68,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-            
+
       - name: Run unit tests
         run: go test -v -race -coverprofile=coverage.out ./...
-        
+
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
@@ -83,39 +83,39 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-          
+
       - name: Build all architectures
         run: |
           mkdir -p dist
-          
+
           # Linux
           GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/gha-linux-amd64 .
           GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/gha-linux-arm64 .
           GOOS=linux GOARCH=386 go build -ldflags="-s -w" -o dist/gha-linux-386 .
-          
+
           # Windows
           GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/gha-windows-amd64.exe .
           GOOS=windows GOARCH=arm64 go build -ldflags="-s -w" -o dist/gha-windows-arm64.exe .
           GOOS=windows GOARCH=386 go build -ldflags="-s -w" -o dist/gha-windows-386.exe .
-          
+
           # macOS
           GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/gha-darwin-amd64 .
           GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/gha-darwin-arm64 .
-          
+
           # FreeBSD
           GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w" -o dist/gha-freebsd-amd64 .
-          
+
       - name: Upload all binaries
         uses: actions/upload-artifact@v4
         with:
           name: gha-binaries
           path: dist/*
-          
+
   comment:
     runs-on: ubuntu-latest
     needs: build
@@ -129,27 +129,27 @@ jobs:
           script: |
             const runId = context.runId;
             const repo = context.repo;
-            
+
             // Get artifact ID
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: repo.owner,
               repo: repo.repo,
               run_id: runId
             });
-            
+
             const artifact = artifacts.data.artifacts.find(a => a.name === 'gha-binaries');
             const artifactId = artifact ? artifact.id : 'unknown';
-            
+
             const baseUrl = `https://nightly.link/${repo.owner}/${repo.repo}/actions/artifacts/${artifactId}.zip`;
-            
+
             const comment = `## 🚀 PR Build Complete!
-            
+
             Test the changes by downloading the binaries for your platform:
-            
+
             ### Download Links
-            
+
             **📦 [Download All Binaries (ZIP)](${baseUrl})**
-            
+
             | Platform | Architecture | File Name |
             |----------|--------------|----------|
             | Linux | x64 | \`gha-linux-amd64\` |
@@ -161,7 +161,7 @@ jobs:
             | macOS | Intel | \`gha-darwin-amd64\` |
             | macOS | Apple Silicon | \`gha-darwin-arm64\` |
             | FreeBSD | x64 | \`gha-freebsd-amd64\` |
-            
+
             ### Quick Test
             \`\`\`bash
             # Download, extract, and test
@@ -169,9 +169,9 @@ jobs:
             chmod +x gha-linux-amd64
             ./gha-linux-amd64 --version
             \`\`\`
-            
+
             > 💡 Download the ZIP file above - it contains all platform binaries.`;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: repo.owner,
@@ -184,21 +184,21 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download binaries
         uses: actions/download-artifact@v4
         with:
           name: gha-binaries
           path: dist/
-          
+
       - name: Make binary executable
         run: chmod +x dist/gha-linux-amd64
-        
+
       - name: Test basic functionality
         run: |
           ./dist/gha-linux-amd64 --version
           ./dist/gha-linux-amd64 --help
-          
+
       - name: Test with real workflow
         run: |
           mkdir -p .github/workflows
@@ -213,7 +213,7 @@ jobs:
                 - run: pwd
           EOF
           ./dist/gha-linux-amd64 --dryrun
-          
+
       - name: Test with existing testdata
         run: |
           cd pkg/runner/testdata/basic
@@ -223,12 +223,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.24'
-          
+
       - name: Run Gosec
         uses: securego/gosec@master
         with:

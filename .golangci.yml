@@ -47,7 +47,6 @@ linters:
     - dupl
     - nakedret
     - prealloc
-    - copyloopvar
     - gocritic
     - whitespace
     - depguard

@@ -31,7 +31,7 @@ jobs:
 
       - name: TEST stop-commands
         run: |
-          echo "::stop-commands::my-end-token" 
+          echo "::stop-commands::my-end-token"
           echo "::set-env name=foo::baz"
           echo $foo | grep bar
           echo "::my-end-token::"

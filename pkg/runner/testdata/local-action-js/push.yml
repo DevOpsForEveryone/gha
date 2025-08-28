@@ -17,7 +17,7 @@ jobs:
     - uses: ./actions/node16
       with:
         who-to-greet: 'Mona the Octocat'
-  
+
   test-node20:
     runs-on: ubuntu-latest
     steps:

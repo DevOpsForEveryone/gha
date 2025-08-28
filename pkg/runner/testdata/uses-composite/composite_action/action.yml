@@ -94,4 +94,3 @@ runs:
       shell: bash
     - run: echo "COMPOSITE_ACTION_ENV_OUTPUT=my test value" >> $GITHUB_ENV
       shell: bash
-

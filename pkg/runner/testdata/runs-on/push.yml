@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: env
-    - run: echo ${GITHUB_ACTOR} 
+    - run: echo ${GITHUB_ACTOR}
     - run: echo ${GITHUB_ACTOR} | grep DevOpsForEveryone/gha
 
   many:
