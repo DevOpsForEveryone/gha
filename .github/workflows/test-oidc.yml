@@ -1,0 +1,20 @@
+name: Test OIDC
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+          
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::575108933710:role/tast-custom-oidc
+          aws-region: us-east-1
+          
+      - name: Test AWS access
+        run: aws sts get-caller-identity

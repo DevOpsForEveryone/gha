@@ -7,7 +7,6 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -1105,13 +1104,11 @@ func setOIDCVars(rc *RunContext, env map[string]string) {
 		var status struct {
 			Running   bool   `json:"running"`
 			NgrokURL  string `json:"ngrok_url"`
+			Password  string `json:"password"`
 		}
-		if json.Unmarshal(data, &status) == nil && status.Running && status.NgrokURL != "" {
+		if json.Unmarshal(data, &status) == nil && status.Running && status.NgrokURL != "" && status.Password != "" {
 			env["ACTIONS_ID_TOKEN_REQUEST_URL"] = status.NgrokURL + "/token"
-			// Generate a proper request token
-			bytes := make([]byte, 32)
-			rand.Read(bytes)
-			env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = base64.URLEncoding.EncodeToString(bytes)
+			env["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = status.Password
 		}
 	}
 }

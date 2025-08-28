@@ -619,11 +619,19 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if oidcStatus, err := loadOIDCStatus(); err == nil && oidcStatus.Running && oidcStatus.NgrokURL != "" {
 			log.Infof("OIDC server detected, configuring environment variables")
 			oidcURL := oidcStatus.NgrokURL + "/token"
-			requestToken := generateRequestToken()
+			
+			// Use the stored password from OIDC status
+			requestToken := oidcStatus.Password
+			log.Infof("Using OIDC password: %s", requestToken)
+			if requestToken == "" {
+				log.Warnf("No OIDC password found in status")
+				return nil
+			}
 			
 			// Set OIDC environment variables
 			envs["ACTIONS_ID_TOKEN_REQUEST_URL"] = oidcURL
 			envs["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = requestToken
+			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in envs: %s", requestToken)
 			
 			// Set required GitHub environment variables for OIDC
 			envs["GITHUB_ACTIONS"] = "true"
@@ -646,6 +654,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			// Also set in process environment for container inheritance
 			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL)
 			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken)
+			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in os.Setenv: %s", requestToken)
 		}
 
 		// run the plan
