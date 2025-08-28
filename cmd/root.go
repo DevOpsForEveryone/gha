@@ -143,6 +143,9 @@ func createRootCommand(ctx context.Context, input *Input, version string) *cobra
 	// Add OIDC command
 	rootCmd.AddCommand(createOIDCCommand())
 	
+	// Add Actions command
+	rootCmd.AddCommand(createActionsCommand())
+	
 	rootCmd.SetArgs(args())
 	return rootCmd
 }
