@@ -63,17 +63,17 @@ func (fwfs readWriteFSImpl) Open(name string) (fs.File, error) {
 }
 
 func (fwfs readWriteFSImpl) OpenWritable(name string) (WritableFile, error) {
-	if err := os.MkdirAll(filepath.Dir(name), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(name), 0o750); err != nil {
 		return nil, err
 	}
-	return os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o644)
+	return os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o600)
 }
 
 func (fwfs readWriteFSImpl) OpenAppendable(name string) (WritableFile, error) {
-	if err := os.MkdirAll(filepath.Dir(name), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Dir(name), 0o750); err != nil {
 		return nil, err
 	}
-	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0o644)
+	file, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR, 0o600)
 
 	if err != nil {
 		return nil, err

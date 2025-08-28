@@ -39,7 +39,9 @@ import (
 func generateRequestToken() string {
 	// Generate a random 32-byte token (simulating GitHub's request token)
 	bytes := make([]byte, 32)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		return ""
+	}
 	return base64.URLEncoding.EncodeToString(bytes)
 }
 
@@ -293,6 +295,10 @@ func listOptions(cmd *cobra.Command) error {
 
 func readArgsFile(file string, split bool) []string {
 	args := make([]string, 0)
+	// Basic path validation
+	if file == "" || strings.Contains(file, "..") {
+		return args
+	}
 	f, err := os.Open(file)
 	if err != nil {
 		return args
@@ -347,6 +353,10 @@ func parseEnvs(env []string) map[string]string {
 }
 
 func readYamlFile(file string) (map[string]string, error) {
+	// Basic path validation
+	if file == "" || strings.Contains(file, "..") {
+		return nil, fmt.Errorf("invalid file path: %s", file)
+	}
 	content, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -425,7 +435,9 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if ret, err := container.GetSocketAndHost(input.containerDaemonSocket); err != nil {
 			log.Warnf("Couldn't get a valid docker connection: %+v", err)
 		} else {
-			os.Setenv("DOCKER_HOST", ret.Host)
+			if err := os.Setenv("DOCKER_HOST", ret.Host); err != nil {
+				log.Warnf("Failed to set DOCKER_HOST: %v", err)
+			}
 			input.containerDaemonSocket = ret.Socket
 			log.Infof("Using docker host '%s', and daemon socket '%s'", ret.Host, ret.Socket)
 		}
@@ -655,8 +667,12 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			}
 
 			// Also set in process environment for container inheritance
-			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL)
-			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken)
+			if err := os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL); err != nil {
+				log.Warnf("Failed to set ACTIONS_ID_TOKEN_REQUEST_URL: %v", err)
+			}
+			if err := os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken); err != nil {
+				log.Warnf("Failed to set ACTIONS_ID_TOKEN_REQUEST_TOKEN: %v", err)
+			}
 			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in os.Setenv: %s", requestToken)
 		}
 
@@ -795,6 +811,10 @@ func defaultImageSurvey(actrc string) error {
 		option = "-P ubuntu-latest=node:16-buster-slim\n-P ubuntu-22.04=node:16-bullseye-slim\n-P ubuntu-20.04=node:16-buster-slim\n-P ubuntu-18.04=node:16-buster-slim\n"
 	}
 
+	// Basic path validation
+	if actrc == "" || strings.Contains(actrc, "..") {
+		return fmt.Errorf("invalid file path: %s", actrc)
+	}
 	f, err := os.Create(actrc)
 	if err != nil {
 		return err

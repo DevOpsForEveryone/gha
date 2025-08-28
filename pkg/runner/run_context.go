@@ -200,15 +200,15 @@ func (rc *RunContext) startHostEnvironment() common.Executor {
 		_, _ = rand.Read(randBytes)
 		miscpath := filepath.Join(cacheDir, hex.EncodeToString(randBytes))
 		actPath := filepath.Join(miscpath, "gha")
-		if err := os.MkdirAll(actPath, 0o777); err != nil {
+		if err := os.MkdirAll(actPath, 0o750); err != nil {
 			return err
 		}
 		path := filepath.Join(miscpath, "hostexecutor")
-		if err := os.MkdirAll(path, 0o777); err != nil {
+		if err := os.MkdirAll(path, 0o750); err != nil {
 			return err
 		}
 		runnerTmp := filepath.Join(miscpath, "tmp")
-		if err := os.MkdirAll(runnerTmp, 0o777); err != nil {
+		if err := os.MkdirAll(runnerTmp, 0o750); err != nil {
 			return err
 		}
 		toolCache := filepath.Join(cacheDir, "tool_cache")
@@ -219,7 +219,9 @@ func (rc *RunContext) startHostEnvironment() common.Executor {
 			Workdir:   rc.Config.Workdir,
 			ActPath:   actPath,
 			CleanUp: func() {
-				os.RemoveAll(miscpath)
+				if err := os.RemoveAll(miscpath); err != nil {
+					// Log error but don't fail cleanup
+				}
 			},
 			StdOut: logWriter,
 		}

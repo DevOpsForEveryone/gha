@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"fmt"
 	"os/exec"
 )
 
@@ -16,7 +17,10 @@ func GetToken(ctx context.Context, workingDirectory string) (string, error) {
 		return "", err
 	}
 
-	// Command setup
+	// Command setup - validate path is safe
+	if path == "" {
+		return "", fmt.Errorf("gh executable not found")
+	}
 	cmd := exec.CommandContext(ctx, path, "auth", "token")
 	cmd.Dir = workingDirectory
 

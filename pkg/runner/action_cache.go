@@ -22,6 +22,20 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
+func safeFilename(s string) string {
+	return strings.NewReplacer(
+		`<`, "-",
+		`>`, "-",
+		`:`, "-",
+		`"`, "-",
+		`/`, "-",
+		`\`, "-",
+		`|`, "-",
+		`?`, "-",
+		`*`, "-",
+	).Replace(s)
+}
+
 type ActionCache interface {
 	Fetch(ctx context.Context, cacheDir, url, ref, token string) (string, error)
 	GetTarArchive(ctx context.Context, cacheDir, sha, includePrefix string) (io.ReadCloser, error)

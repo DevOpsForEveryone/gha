@@ -60,7 +60,7 @@ func StartHandler(dir, customExternalURL string, outboundIP string, port uint16,
 		}
 		dir = filepath.Join(home, ".cache", "actcache")
 	}
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return nil, err
 	}
 

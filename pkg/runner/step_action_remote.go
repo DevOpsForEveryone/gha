@@ -128,7 +128,16 @@ func (sar *stepActionRemote) prepareActionExecutor() common.Executor {
 
 		remoteReader := func(_ context.Context) actionYamlReader {
 			return func(filename string) (io.Reader, io.Closer, error) {
-				f, err := os.Open(filepath.Join(actionDir, sar.remoteAction.Path, filename))
+				// Validate filename to prevent directory traversal
+				if strings.Contains(filename, "..") || strings.HasPrefix(filename, "/") {
+					return nil, nil, fmt.Errorf("invalid filename: %s", filename)
+				}
+				fullPath := filepath.Join(actionDir, sar.remoteAction.Path, filename)
+				// Ensure the path is within actionDir
+				if !strings.HasPrefix(filepath.Clean(fullPath), filepath.Clean(actionDir)) {
+					return nil, nil, fmt.Errorf("path traversal attempt: %s", filename)
+				}
+				f, err := os.Open(fullPath)
 				return f, f, err
 			}
 		}

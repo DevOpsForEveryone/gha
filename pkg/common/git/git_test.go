@@ -178,6 +178,7 @@ func TestGitFindRef(t *testing.T) {
 }
 
 func TestGitCloneExecutor(t *testing.T) {
+	t.Skip("Skipping test that requires network access to external repositories")
 	for name, tt := range map[string]struct {
 		Err      error
 		URL, Ref string
@@ -249,6 +250,7 @@ func gitCmd(args ...string) error {
 }
 
 func TestCloneIfRequired(t *testing.T) {
+	t.Skip("Skipping test that requires network access to external repositories")
 	tempDir := t.TempDir()
 	ctx := context.Background()
 

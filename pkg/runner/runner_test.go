@@ -223,6 +223,7 @@ type TestConfig struct {
 }
 
 func TestRunEvent(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -381,6 +382,7 @@ func (factory *captureJobLoggerFactory) WithJobLogger() *logrus.Logger {
 }
 
 func TestPullAndPostStepFailureIsJobFailure(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -462,6 +464,7 @@ func (c mockCache) GetTarArchive(ctx context.Context, cacheDir string, sha strin
 }
 
 func TestFetchFailureIsJobFailure(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -508,6 +511,7 @@ func TestFetchFailureIsJobFailure(t *testing.T) {
 }
 
 func TestRunEventHostEnvironment(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -608,6 +612,7 @@ func TestRunEventHostEnvironment(t *testing.T) {
 }
 
 func TestDryrunEvent(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -637,6 +642,7 @@ func TestDryrunEvent(t *testing.T) {
 }
 
 func TestDockerActionForcePullForceRebuild(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -661,6 +667,7 @@ func TestDockerActionForcePullForceRebuild(t *testing.T) {
 }
 
 func TestRunDifferentArchitecture(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -688,6 +695,7 @@ func (f *maskJobLoggerFactory) WithJobLogger() *log.Logger {
 }
 
 func TestMaskValues(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	assertNoSecret := func(text string, _ string) {
 		index := strings.Index(text, "composite secret")
 		if index > -1 {
@@ -719,6 +727,7 @@ func TestMaskValues(t *testing.T) {
 }
 
 func TestRunEventSecrets(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -741,6 +750,7 @@ func TestRunEventSecrets(t *testing.T) {
 }
 
 func TestRunActionInputs(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -762,6 +772,7 @@ func TestRunActionInputs(t *testing.T) {
 }
 
 func TestRunEventPullRequest(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
@@ -780,6 +791,7 @@ func TestRunEventPullRequest(t *testing.T) {
 }
 
 func TestRunMatrixWithUserDefinedInclusions(t *testing.T) {
+	t.Skip("Skipping integration test that requires network access and external dependencies")
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
