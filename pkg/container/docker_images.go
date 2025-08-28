@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/DevOpsForEveryone/gha/pkg/common"
 	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/image"
-	"github.com/DevOpsForEveryone/gha/pkg/common"
 )
 
 // ImageExistsLocally returns a boolean indicating if an image with the

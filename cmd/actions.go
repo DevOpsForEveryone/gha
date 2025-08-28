@@ -95,7 +95,7 @@ func getRepoInfo() (owner, repo string, err error) {
 
 func runListWorkflows(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -113,10 +113,10 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("\n🔄 Workflows for %s/%s\n\n", owner, repo)
-	
+
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "ID\tNAME\tSTATE\tPATH\tLAST RUN\n")
-	
+
 	for _, workflow := range workflows {
 		// Get latest run for this workflow
 		runs, _ := client.GetWorkflowRuns(ctx, owner, repo, workflow.ID)
@@ -124,17 +124,17 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 		if len(runs) > 0 {
 			lastRun = formatTimeAgo(runs[0].CreatedAt)
 		}
-		
+
 		stateIcon := getStateIcon(workflow.State)
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n", 
-			workflow.ID, 
-			workflow.Name, 
+		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n",
+			workflow.ID,
+			workflow.Name,
 			stateIcon,
-			workflow.State, 
+			workflow.State,
 			workflow.Path,
 			lastRun)
 	}
-	
+
 	w.Flush()
 	fmt.Printf("\n📊 Total: %d workflows\n\n", len(workflows))
 	return nil
@@ -142,7 +142,7 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 
 func runListRuns(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -184,21 +184,21 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "RUN ID\tWORKFLOW\tSTATUS\tCONCLUSION\tBRANCH\tEVENT\tCREATED\tDURATION\n")
-	
+
 	for _, run := range filteredRuns {
 		conclusion := run.Conclusion
 		if conclusion == "" {
 			conclusion = "-"
 		}
-		
+
 		statusIcon := getStatusIcon(run.Status, conclusion)
 		duration := calculateDuration(run.CreatedAt, run.UpdatedAt)
-		
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\t%s\n", 
-			run.ID, 
+
+		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\t%s\n",
+			run.ID,
 			run.Name,
 			statusIcon,
-			run.Status, 
+			run.Status,
 			getConclusionIcon(conclusion),
 			conclusion,
 			run.HeadBranch,
@@ -206,7 +206,7 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 			formatTimeAgo(run.CreatedAt),
 			duration)
 	}
-	
+
 	w.Flush()
 	fmt.Printf("\n📊 Showing %d of %d runs", len(filteredRuns), len(runs))
 	if statusFilter != "" {
@@ -215,13 +215,13 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 	if branchFilter != "" {
 		fmt.Printf(" (filtered by branch: %s)", branchFilter)
 	}
-	fmt.Println("\n")
+	fmt.Println()
 	return nil
 }
 
 func runShowJobs(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -244,45 +244,45 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("\n💼 Jobs for run %d\n\n", runID)
-	
+
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "JOB ID\tNAME\tSTATUS\tCONCLUSION\tSTARTED\tCOMPLETED\tDURATION\n")
-	
+
 	for _, job := range jobs {
 		conclusion := job.Conclusion
 		if conclusion == "" {
 			conclusion = "-"
 		}
-		
+
 		started := "-"
 		if !job.StartedAt.IsZero() {
 			started = formatTimeAgo(job.StartedAt)
 		}
-		
+
 		completed := "-"
 		if !job.CompletedAt.IsZero() {
 			completed = formatTimeAgo(job.CompletedAt)
 		}
-		
+
 		duration := "-"
 		if !job.StartedAt.IsZero() && !job.CompletedAt.IsZero() {
 			duration = calculateDuration(job.StartedAt, job.CompletedAt)
 		}
-		
+
 		statusIcon := getStatusIcon(job.Status, conclusion)
-		
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\n", 
-			job.ID, 
+
+		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\n",
+			job.ID,
 			job.Name,
 			statusIcon,
-			job.Status, 
+			job.Status,
 			getConclusionIcon(conclusion),
 			conclusion,
 			started,
 			completed,
 			duration)
 	}
-	
+
 	w.Flush()
 	fmt.Printf("\n📊 Total: %d jobs\n\n", len(jobs))
 	return nil
@@ -290,7 +290,7 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 
 func runShowLogs(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -313,7 +313,7 @@ func runShowLogs(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("Logs for run %d:\n\n", runID)
-	
+
 	// Extract and display logs from ZIP file
 	if err := extractAndDisplayLogs(logsData); err != nil {
 		return fmt.Errorf("failed to extract logs: %w", err)
@@ -331,20 +331,20 @@ func extractAndDisplayLogs(zipData []byte) error {
 	for _, file := range reader.File {
 		if strings.HasSuffix(file.Name, ".txt") {
 			fmt.Printf("=== %s ===\n", file.Name)
-			
+
 			rc, err := file.Open()
 			if err != nil {
 				fmt.Printf("Error opening %s: %v\n", file.Name, err)
 				continue
 			}
-			
+
 			content, err := io.ReadAll(rc)
 			rc.Close()
 			if err != nil {
 				fmt.Printf("Error reading %s: %v\n", file.Name, err)
 				continue
 			}
-			
+
 			fmt.Println(string(content))
 			fmt.Println()
 		}
@@ -443,7 +443,7 @@ func calculateDuration(start, end time.Time) string {
 
 func filterRuns(runs []gh.WorkflowRun, statusFilter, branchFilter string, limit int) []gh.WorkflowRun {
 	var filtered []gh.WorkflowRun
-	
+
 	for _, run := range runs {
 		if statusFilter != "" && run.Status != statusFilter {
 			continue
@@ -456,13 +456,13 @@ func filterRuns(runs []gh.WorkflowRun, statusFilter, branchFilter string, limit 
 			break
 		}
 	}
-	
+
 	return filtered
 }
 
 func runShowRun(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -479,13 +479,13 @@ func runShowRun(cmd *cobra.Command, args []string) error {
 	}
 
 	client := gh.NewClient(token)
-	
+
 	// Get all runs to find the specific one
 	runs, err := client.GetAllWorkflowRuns(ctx, owner, repo)
 	if err != nil {
 		return fmt.Errorf("failed to get workflow runs: %w", err)
 	}
-	
+
 	var targetRun *gh.WorkflowRun
 	for _, run := range runs {
 		if run.ID == runID {
@@ -493,17 +493,17 @@ func runShowRun(cmd *cobra.Command, args []string) error {
 			break
 		}
 	}
-	
+
 	if targetRun == nil {
 		return fmt.Errorf("run %d not found", runID)
 	}
-	
+
 	// Get jobs for this run
 	jobs, err := client.GetJobs(ctx, owner, repo, runID)
 	if err != nil {
 		return fmt.Errorf("failed to get jobs: %w", err)
 	}
-	
+
 	fmt.Printf("\n📄 Workflow Run Details\n")
 	fmt.Printf("\n┌─ Run Information\n")
 	fmt.Printf("│ ID: %d\n", targetRun.ID)
@@ -517,26 +517,26 @@ func runShowRun(cmd *cobra.Command, args []string) error {
 	fmt.Printf("│ Updated: %s (%s)\n", targetRun.UpdatedAt.Format("2006-01-02 15:04:05"), formatTimeAgo(targetRun.UpdatedAt))
 	fmt.Printf("│ Duration: %s\n", calculateDuration(targetRun.CreatedAt, targetRun.UpdatedAt))
 	fmt.Printf("└─\n")
-	
+
 	if len(jobs) > 0 {
 		fmt.Printf("\n┌─ Jobs (%d)\n", len(jobs))
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 		fmt.Fprintf(w, "│ JOB ID\tNAME\tSTATUS\tCONCLUSION\tDURATION\n")
-		
+
 		for _, job := range jobs {
 			conclusion := job.Conclusion
 			if conclusion == "" {
 				conclusion = "-"
 			}
-			
+
 			duration := calculateDuration(job.StartedAt, job.CompletedAt)
 			statusIcon := getStatusIcon(job.Status, conclusion)
-			
-			fmt.Fprintf(w, "│ %d\t%s\t%s %s\t%s %s\t%s\n", 
-				job.ID, 
+
+			fmt.Fprintf(w, "│ %d\t%s\t%s %s\t%s %s\t%s\n",
+				job.ID,
 				job.Name,
 				statusIcon,
-				job.Status, 
+				job.Status,
 				getConclusionIcon(conclusion),
 				conclusion,
 				duration)
@@ -544,14 +544,14 @@ func runShowRun(cmd *cobra.Command, args []string) error {
 		w.Flush()
 		fmt.Printf("└─\n")
 	}
-	
+
 	fmt.Println()
 	return nil
 }
 
 func runWatchRuns(cmd *cobra.Command, args []string) error {
 	ctx := context.Background()
-	
+
 	token, err := gh.GetToken(ctx, ".")
 	if err != nil {
 		return fmt.Errorf("failed to get GitHub token: %w", err)
@@ -564,12 +564,12 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 
 	interval, _ := cmd.Flags().GetInt("interval")
 	client := gh.NewClient(token)
-	
+
 	fmt.Printf("👀 Watching workflow runs for %s/%s (refresh every %ds, press Ctrl+C to stop)\n\n", owner, repo, interval)
-	
+
 	for {
 		var runs []gh.WorkflowRun
-		
+
 		if len(args) > 0 {
 			// Watch specific workflow
 			var workflowID int64
@@ -581,27 +581,27 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 			// Watch all runs
 			runs, err = client.GetAllWorkflowRuns(ctx, owner, repo)
 		}
-		
+
 		if err != nil {
 			fmt.Printf("Error fetching runs: %v\n", err)
 		} else {
 			// Clear screen and show current time
 			fmt.Printf("\033[2J\033[H")
 			fmt.Printf("🔄 Last updated: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
-			
+
 			// Show only recent runs (limit to 10)
 			limit := 10
 			if len(runs) > limit {
 				runs = runs[:limit]
 			}
-			
+
 			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 			fmt.Fprintf(w, "RUN ID\tWORKFLOW\tSTATUS\tBRANCH\tCREATED\n")
-			
+
 			for _, run := range runs {
 				statusIcon := getStatusIcon(run.Status, run.Conclusion)
-				fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n", 
-					run.ID, 
+				fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n",
+					run.ID,
 					run.Name,
 					statusIcon,
 					run.Status,
@@ -610,7 +610,7 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 			}
 			w.Flush()
 		}
-		
+
 		time.Sleep(time.Duration(interval) * time.Second)
 	}
 }

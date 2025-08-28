@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -139,13 +139,13 @@ func createRootCommand(ctx context.Context, input *Input, version string) *cobra
 	rootCmd.PersistentFlags().StringArrayVarP(&input.localRepository, "local-repository", "", []string{}, "Replaces the specified repository and ref with a local folder (e.g. https://github.com/test/test@v0=/home/gha/test or test/test@v0=/home/gha/test, the latter matches any hosts or protocols)")
 	rootCmd.PersistentFlags().BoolVar(&input.listOptions, "list-options", false, "Print a json structure of compatible options")
 	rootCmd.PersistentFlags().IntVar(&input.concurrentJobs, "concurrent-jobs", 0, "Maximum number of concurrent jobs to run. Default is the number of CPUs available.")
-	
+
 	// Add OIDC command
 	rootCmd.AddCommand(createOIDCCommand())
-	
+
 	// Add Actions command
 	rootCmd.AddCommand(createActionsCommand())
-	
+
 	rootCmd.SetArgs(args())
 	return rootCmd
 }
@@ -622,7 +622,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if oidcStatus, err := loadOIDCStatus(); err == nil && oidcStatus.Running && oidcStatus.NgrokURL != "" {
 			log.Infof("OIDC server detected, configuring environment variables")
 			oidcURL := oidcStatus.NgrokURL + "/token"
-			
+
 			// Use the stored password from OIDC status
 			requestToken := oidcStatus.Password
 			log.Infof("Using OIDC password: %s", requestToken)
@@ -630,12 +630,12 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 				log.Warnf("No OIDC password found in status")
 				return nil
 			}
-			
+
 			// Set OIDC environment variables
 			envs["ACTIONS_ID_TOKEN_REQUEST_URL"] = oidcURL
 			envs["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = requestToken
 			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in envs: %s", requestToken)
-			
+
 			// Set required GitHub environment variables for OIDC
 			envs["GITHUB_ACTIONS"] = "true"
 			if envs["GITHUB_REPOSITORY"] == "" {
@@ -653,7 +653,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			if envs["GITHUB_SHA"] == "" {
 				envs["GITHUB_SHA"] = "e374ef962fc15812c175ff9ad6c33d77b8684e05"
 			}
-			
+
 			// Also set in process environment for container inheritance
 			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL)
 			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken)

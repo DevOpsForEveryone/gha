@@ -41,28 +41,14 @@ jobs:
         with:
           go-version: '1.24'
           
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          
-      - name: Install JS dependencies
-        run: npm install -g prettier standard markdownlint-cli
-        
       - name: Run Go linting
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest
           args: --timeout=5m
           
-      - name: Run Prettier
-        run: npx prettier --check .
-        
-      - name: Run Markdown lint
-        run: npx markdownlint .
-        
-      - name: Run JS lint
-        run: npx standard
+      - name: Check pre-commit
+        uses: pre-commit/action@v3.0.0
 
   test:
     runs-on: ubuntu-latest

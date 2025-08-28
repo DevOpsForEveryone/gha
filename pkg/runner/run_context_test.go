@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
 	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/golang-jwt/jwt/v5"
 
 	log "github.com/sirupsen/logrus"
 	assert "github.com/stretchr/testify/assert"

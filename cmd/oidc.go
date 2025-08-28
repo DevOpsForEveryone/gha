@@ -159,12 +159,12 @@ func isProcessRunning(pid int) bool {
 }
 
 type OIDCServerImpl struct {
-	privateKey     *rsa.PrivateKey
-	publicKey      *rsa.PublicKey
-	issuer         string
-	port           int
-	server         *http.Server
-	expectedToken  string
+	privateKey    *rsa.PrivateKey
+	publicKey     *rsa.PublicKey
+	issuer        string
+	port          int
+	server        *http.Server
+	expectedToken string
 }
 
 func NewOIDCServerImpl(port int, password string) (*OIDCServerImpl, error) {
@@ -249,7 +249,7 @@ func (s *OIDCServerImpl) handleToken(w http.ResponseWriter, r *http.Request) {
 func (s *OIDCServerImpl) handleJWKS(w http.ResponseWriter, r *http.Request) {
 	n := s.publicKey.N.Bytes()
 	e := s.publicKey.E
-	
+
 	// Convert to base64url
 	nBase64 := base64.RawURLEncoding.EncodeToString(n)
 	eBytes := make([]byte, 4)
@@ -262,7 +262,7 @@ func (s *OIDCServerImpl) handleJWKS(w http.ResponseWriter, r *http.Request) {
 		eBytes = eBytes[1:]
 	}
 	eBase64 := base64.RawURLEncoding.EncodeToString(eBytes)
-	
+
 	response := map[string]interface{}{
 		"keys": []map[string]interface{}{
 			{
@@ -281,12 +281,12 @@ func (s *OIDCServerImpl) handleJWKS(w http.ResponseWriter, r *http.Request) {
 
 func (s *OIDCServerImpl) handleWellKnown(w http.ResponseWriter, r *http.Request) {
 	config := map[string]interface{}{
-		"issuer":                 s.issuer,
-		"token_endpoint":         s.issuer + "/token",
-		"jwks_uri":              s.issuer + "/.well-known/jwks",
-		"subject_types_supported": []string{"public"},
-		"response_types_supported": []string{"id_token"},
-		"claims_supported": []string{"sub", "aud", "exp", "iat", "iss"},
+		"issuer":                                s.issuer,
+		"token_endpoint":                        s.issuer + "/token",
+		"jwks_uri":                              s.issuer + "/.well-known/jwks",
+		"subject_types_supported":               []string{"public"},
+		"response_types_supported":              []string{"id_token"},
+		"claims_supported":                      []string{"sub", "aud", "exp", "iat", "iss"},
 		"id_token_signing_alg_values_supported": []string{"RS256"},
 	}
 
@@ -376,32 +376,32 @@ func startOIDCServer() error {
 
 	// Start OIDC server as background process
 	port := 8080
-	
+
 	// Generate secure password
 	passwordBytes := make([]byte, 32)
 	rand.Read(passwordBytes)
 	password := fmt.Sprintf("%x", passwordBytes)
-	
+
 	// Start ngrok first
 	ngrokCmd := exec.Command("ngrok", "http", strconv.Itoa(port))
 	if err := ngrokCmd.Start(); err != nil {
 		return fmt.Errorf("failed to start ngrok: %w", err)
 	}
-	
+
 	// Wait for ngrok to establish tunnel
 	time.Sleep(3 * time.Second)
-	
+
 	// Get ngrok URL
 	ngrokURL, err := getNgrokURL()
 	if err != nil {
 		ngrokCmd.Process.Kill()
 		return fmt.Errorf("failed to get ngrok URL: %w", err)
 	}
-	
+
 	// Now start server with ngrok URL
 	serverCmd := exec.Command(os.Args[0], "oidc", "start")
 	serverCmd.Env = append(os.Environ(), "GHA_OIDC_MODE=server", fmt.Sprintf("GHA_NGROK_URL=%s", ngrokURL), fmt.Sprintf("GHA_PORT=%d", port), fmt.Sprintf("GHA_OIDC_PASSWORD=%s", password))
-	
+
 	if err := serverCmd.Start(); err != nil {
 		ngrokCmd.Process.Kill()
 		return fmt.Errorf("failed to start OIDC server: %w", err)
@@ -476,7 +476,7 @@ func showOIDCStatus() error {
 	fmt.Printf("  PID: %d\n", status.PID)
 	fmt.Printf("  Port: %d\n", status.Port)
 	fmt.Printf("  Started: %s\n", status.StartTime)
-	
+
 	if status.NgrokURL != "" {
 		fmt.Printf("  Ngrok URL: %s\n", status.NgrokURL)
 		fmt.Printf("  Ngrok PID: %d\n", status.NgrokPID)
@@ -580,7 +580,7 @@ func restartOIDCServer() error {
 	// Start new server with existing ngrok URL and password
 	serverCmd := exec.Command(os.Args[0], "oidc", "start")
 	serverCmd.Env = append(os.Environ(), "GHA_OIDC_MODE=server", fmt.Sprintf("GHA_NGROK_URL=%s", ngrokURL), fmt.Sprintf("GHA_PORT=%d", status.Port), fmt.Sprintf("GHA_OIDC_PASSWORD=%s", status.Password))
-	
+
 	if err := serverCmd.Start(); err != nil {
 		return fmt.Errorf("failed to restart OIDC server: %w", err)
 	}

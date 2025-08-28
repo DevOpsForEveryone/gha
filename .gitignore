@@ -5,30 +5,37 @@
 *.so
 *.dylib
 
-# Test binary, build with `go test -c`
+# Test binary, built with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-/dist/
-.todo
+# Dependency directories (remove the comment below to include it)
+# vendor/
 
-*.nupkg
+# Go workspace file
+go.work
+
+# Build output
+dist/
+build/
+
+# IDE files
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# Path for actions cache created when running tests
-pkg/runner/act/
+# OS files
+.DS_Store
+Thumbs.db
 
-# act binary
-dist/local/act
-
-coverage.txt
-unit-tests.xml
-
+# Local config
 .env
-.secrets
+.env.local
 
-# megalinter
-report/
+# Coverage
+coverage.out
+coverage.html

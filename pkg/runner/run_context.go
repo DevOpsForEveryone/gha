@@ -20,11 +20,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/DevOpsForEveryone/gha/pkg/common"
 	"github.com/DevOpsForEveryone/gha/pkg/container"
 	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
 	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/docker/go-connections/nat"
 	"github.com/opencontainers/selinux/go-selinux"
 )
 
@@ -1059,7 +1059,7 @@ func (rc *RunContext) withGithubEnv(ctx context.Context, github *model.GithubCon
 	if rc.Config.ArtifactServerPath != "" {
 		setActionRuntimeVars(rc, env)
 	}
-	
+
 	// Set OIDC environment variables for AWS authentication
 	setOIDCVars(rc, env)
 
@@ -1102,9 +1102,9 @@ func setOIDCVars(rc *RunContext, env map[string]string) {
 	statusFile := os.ExpandEnv("$HOME/.local/state/gha/oidc-status.json")
 	if data, err := os.ReadFile(statusFile); err == nil {
 		var status struct {
-			Running   bool   `json:"running"`
-			NgrokURL  string `json:"ngrok_url"`
-			Password  string `json:"password"`
+			Running  bool   `json:"running"`
+			NgrokURL string `json:"ngrok_url"`
+			Password string `json:"password"`
 		}
 		if json.Unmarshal(data, &status) == nil && status.Running && status.NgrokURL != "" && status.Password != "" {
 			env["ACTIONS_ID_TOKEN_REQUEST_URL"] = status.NgrokURL + "/token"

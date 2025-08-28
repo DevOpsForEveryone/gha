@@ -21,6 +21,14 @@ endif
 .PHONY: pr
 pr: tidy format-all lint test
 
+.PHONY: setup-hooks
+setup-hooks:
+	./scripts/setup-hooks.sh
+
+.PHONY: pre-commit
+pre-commit:
+	pre-commit run --all-files
+
 .PHONY: build
 build:
 	go build -ldflags "-X main.version=$(VERSION)" -o dist/local/gha main.go

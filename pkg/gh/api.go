@@ -37,11 +37,11 @@ type Workflow struct {
 }
 
 type Job struct {
-	ID         int64     `json:"id"`
-	Name       string    `json:"name"`
-	Status     string    `json:"status"`
-	Conclusion string    `json:"conclusion"`
-	StartedAt  time.Time `json:"started_at"`
+	ID          int64     `json:"id"`
+	Name        string    `json:"name"`
+	Status      string    `json:"status"`
+	Conclusion  string    `json:"conclusion"`
+	StartedAt   time.Time `json:"started_at"`
 	CompletedAt time.Time `json:"completed_at"`
 }
 
@@ -84,7 +84,7 @@ func (c *Client) makeRequest(ctx context.Context, method, url string) (*http.Res
 
 func (c *Client) GetWorkflows(ctx context.Context, owner, repo string) ([]Workflow, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/actions/workflows", c.baseURL, owner, repo)
-	
+
 	resp, err := c.makeRequest(ctx, "GET", url)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func (c *Client) GetWorkflows(ctx context.Context, owner, repo string) ([]Workfl
 
 func (c *Client) GetWorkflowRuns(ctx context.Context, owner, repo string, workflowID int64) ([]WorkflowRun, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/actions/workflows/%d/runs", c.baseURL, owner, repo, workflowID)
-	
+
 	resp, err := c.makeRequest(ctx, "GET", url)
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func (c *Client) GetWorkflowRuns(ctx context.Context, owner, repo string, workfl
 
 func (c *Client) GetAllWorkflowRuns(ctx context.Context, owner, repo string) ([]WorkflowRun, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/actions/runs", c.baseURL, owner, repo)
-	
+
 	resp, err := c.makeRequest(ctx, "GET", url)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func (c *Client) GetAllWorkflowRuns(ctx context.Context, owner, repo string) ([]
 
 func (c *Client) GetJobs(ctx context.Context, owner, repo string, runID int64) ([]Job, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/actions/runs/%d/jobs", c.baseURL, owner, repo, runID)
-	
+
 	resp, err := c.makeRequest(ctx, "GET", url)
 	if err != nil {
 		return nil, err
@@ -188,7 +188,7 @@ func (c *Client) GetJobs(ctx context.Context, owner, repo string, runID int64) (
 
 func (c *Client) GetLogs(ctx context.Context, owner, repo string, runID int64) ([]byte, error) {
 	url := fmt.Sprintf("%s/repos/%s/%s/actions/runs/%d/logs", c.baseURL, owner, repo, runID)
-	
+
 	resp, err := c.makeRequest(ctx, "GET", url)
 	if err != nil {
 		return nil, err
@@ -228,6 +228,6 @@ func ParseRepoFromRemote(remoteURL string) (owner, repo string, err error) {
 		}
 		return repoParts[0], repoParts[1], nil
 	}
-	
+
 	return "", "", fmt.Errorf("unsupported URL format")
 }

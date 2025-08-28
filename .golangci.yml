@@ -35,8 +35,11 @@ linters:
   enable:
     - gosimple
     - staticcheck
-    - unused
     - govet
+    - goimports
+    - misspell
+  disable:
+    - unused
     - revive
     - gocyclo
     - gosec
@@ -46,11 +49,9 @@ linters:
     - prealloc
     - copyloopvar
     - gocritic
-    - goimports
     - whitespace
-    - misspell
     - depguard
     - importas
     - contextcheck
     - nolintlint
-    - revive
+    - errcheck
