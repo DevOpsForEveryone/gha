@@ -1,0 +1,10 @@
+name: job-container
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: milan98080/ubuntu:runner-latest # image with user 'runner:runner' built on tag 'gha-latest'
+    steps:
+      - run: echo PASS

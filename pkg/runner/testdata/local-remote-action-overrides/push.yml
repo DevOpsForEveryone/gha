@@ -1,0 +1,9 @@
+name: basic
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: DevOpsForEveryone/test-override@a
+      - uses: DevOpsForEveryone/test-override@b
