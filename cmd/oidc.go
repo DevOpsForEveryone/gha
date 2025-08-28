@@ -401,7 +401,7 @@ func startOIDCServer() error {
 	ngrokURL, err := getNgrokURL()
 	if err != nil {
 		if killErr := ngrokCmd.Process.Kill(); killErr != nil {
-			// Log kill error but continue with original error
+			_ = killErr // explicitly ignore kill error
 		}
 		return fmt.Errorf("failed to get ngrok URL: %w", err)
 	}
@@ -415,7 +415,7 @@ func startOIDCServer() error {
 
 	if err := serverCmd.Start(); err != nil {
 		if killErr := ngrokCmd.Process.Kill(); killErr != nil {
-			// Log kill error but continue with original error
+			_ = killErr // explicitly ignore kill error
 		}
 		return fmt.Errorf("failed to start OIDC server: %w", err)
 	}
@@ -577,7 +577,7 @@ func restartOIDCServer() error {
 		fmt.Printf("Stopping OIDC server (PID: %d)\n", status.PID)
 		if process, err := os.FindProcess(status.PID); err == nil {
 			if killErr := process.Kill(); killErr != nil {
-				// Log kill error but continue
+				_ = killErr // explicitly ignore kill error
 			}
 		}
 	}

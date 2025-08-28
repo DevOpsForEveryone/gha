@@ -61,7 +61,7 @@ func readActionImpl(ctx context.Context, step *model.Step, actionDir string, act
 			addError("Dockerfile", err)
 			if err == nil {
 				if closeErr := closer.Close(); closeErr != nil {
-					// Log close error but continue
+					_ = closeErr // explicitly ignore close error
 				}
 				closer = nil
 				action := &model.Action{

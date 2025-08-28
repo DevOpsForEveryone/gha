@@ -220,7 +220,7 @@ func (rc *RunContext) startHostEnvironment() common.Executor {
 			ActPath:   actPath,
 			CleanUp: func() {
 				if err := os.RemoveAll(miscpath); err != nil {
-					// Log error but don't fail cleanup
+					_ = err // explicitly ignore cleanup error
 				}
 			},
 			StdOut: logWriter,
