@@ -1,0 +1,109 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Get latest version
+        id: latest_version
+        run: |
+          LATEST=$(git tag -l "v*" | sort -V | tail -n1)
+          if [ -z "$LATEST" ]; then
+            LATEST="v0.0.0"
+          fi
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          
+      - name: Calculate new version
+        id: new_version
+        run: |
+          LATEST="${{ steps.latest_version.outputs.latest }}"
+          VERSION=${LATEST#v}
+          
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          
+          case "${{ github.event.inputs.version_bump }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+          
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          
+      - name: Build multi-arch binaries
+        run: |
+          mkdir -p dist
+          VERSION="${{ steps.new_version.outputs.version }}"
+          
+          # Linux
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-arm64 .
+          GOOS=linux GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-386 .
+          
+          # Windows
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-amd64.exe .
+          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-arm64.exe .
+          GOOS=windows GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-386.exe .
+          
+          # macOS
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-darwin-amd64 .
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-darwin-arm64 .
+          
+          # FreeBSD
+          GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-freebsd-amd64 .
+          
+      - name: Create checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          
+      - name: Create tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.new_version.outputs.version }}
+          git push origin ${{ steps.new_version.outputs.version }}
+          
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.new_version.outputs.version }}
+          name: Release ${{ steps.new_version.outputs.version }}
+          generate_release_notes: true
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
