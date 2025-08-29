@@ -13,7 +13,7 @@ When you run `gha` it reads in your GitHub Actions from `.github/workflows/` and
 
 ## Building from source
 
-- Install Go tools 1.20+ - (<https://golang.org/doc/install>)
+- Install Go tools 1.24+ - (<https://golang.org/doc/install>)
 - Clone this repo
 - Run unit tests with `make test`
 - Build and install: `make install`
