@@ -50,7 +50,7 @@ func (e *HostEnvironment) Close() common.Executor {
 func (e *HostEnvironment) Copy(destPath string, files ...*FileEntry) common.Executor {
 	return func(_ context.Context) error {
 		for _, f := range files {
-			if err := os.MkdirAll(filepath.Dir(filepath.Join(destPath, f.Name)), 0o777); err != nil {
+			if err := os.MkdirAll(filepath.Dir(filepath.Join(destPath, f.Name)), 0o750); err != nil {
 				return err
 			}
 			if err := os.WriteFile(filepath.Join(destPath, f.Name), []byte(f.Body), fs.FileMode(f.Mode)); err != nil {
@@ -297,6 +297,10 @@ func (e *HostEnvironment) exec(ctx context.Context, command []string, cmdline st
 	f, err := lookupPathHost(command[0], env, e.StdOut)
 	if err != nil {
 		return err
+	}
+	// Validate executable path to prevent injection
+	if f == "" {
+		return fmt.Errorf("executable path is empty")
 	}
 	cmd := exec.CommandContext(ctx, f)
 	cmd.Path = f

@@ -137,7 +137,7 @@ func saveNoticesEtag(etag string) {
 
 func etagPath() string {
 	dir := filepath.Join(CacheHomeDir, "gha")
-	if err := os.MkdirAll(dir, 0o777); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		log.Fatal(err)
 	}
 	return filepath.Join(dir, ".notices.etag")

@@ -8,6 +8,10 @@ import (
 
 // CopyFile copy file
 func CopyFile(source string, dest string) (err error) {
+	// Basic path validation
+	if source == "" || dest == "" {
+		return fmt.Errorf("source and destination paths cannot be empty")
+	}
 	sourcefile, err := os.Open(source)
 	if err != nil {
 		return err

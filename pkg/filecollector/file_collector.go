@@ -64,8 +64,16 @@ type CopyCollector struct {
 }
 
 func (cc *CopyCollector) WriteFile(fpath string, fi fs.FileInfo, linkName string, f io.Reader) error {
+	// Validate path to prevent directory traversal
+	if strings.Contains(fpath, "..") {
+		return fmt.Errorf("invalid file path: %s", fpath)
+	}
 	fdestpath := filepath.Join(cc.DstDir, fpath)
-	if err := os.MkdirAll(filepath.Dir(fdestpath), 0o777); err != nil {
+	// Ensure the destination is within the target directory
+	if !strings.HasPrefix(filepath.Clean(fdestpath), filepath.Clean(cc.DstDir)) {
+		return fmt.Errorf("path traversal attempt: %s", fpath)
+	}
+	if err := os.MkdirAll(filepath.Dir(fdestpath), 0o750); err != nil {
 		return err
 	}
 	if linkName != "" {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/docker/go-connections/nat"
 )
 
 // NewContainerInput the input for the New function

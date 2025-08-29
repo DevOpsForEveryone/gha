@@ -11,10 +11,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/DevOpsForEveryone/gha/pkg/common"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/DevOpsForEveryone/gha/pkg/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

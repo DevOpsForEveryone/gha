@@ -13,7 +13,7 @@ type Storage struct {
 }
 
 func NewStorage(rootDir string) (*Storage, error) {
-	if err := os.MkdirAll(rootDir, 0o755); err != nil {
+	if err := os.MkdirAll(rootDir, 0o750); err != nil {
 		return nil, err
 	}
 	return &Storage{
@@ -33,7 +33,7 @@ func (s *Storage) Exist(id uint64) (bool, error) {
 
 func (s *Storage) Write(id uint64, offset int64, reader io.Reader) error {
 	name := s.tempName(id, offset)
-	if err := os.MkdirAll(filepath.Dir(name), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(name), 0o750); err != nil {
 		return err
 	}
 	file, err := os.Create(name)
@@ -57,7 +57,7 @@ func (s *Storage) Commit(id uint64, size int64) (int64, error) {
 		return 0, err
 	}
 
-	if err := os.MkdirAll(filepath.Dir(name), 0o755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(name), 0o750); err != nil {
 		return 0, err
 	}
 	file, err := os.Create(name)

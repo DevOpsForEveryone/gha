@@ -6,10 +6,10 @@ import (
 	"context"
 	"strings"
 
+	"github.com/DevOpsForEveryone/gha/pkg/common"
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/cli/cli/config/credentials"
 	"github.com/docker/docker/api/types/registry"
-	"github.com/DevOpsForEveryone/gha/pkg/common"
 )
 
 func LoadDockerAuthConfig(ctx context.Context, image string) (registry.AuthConfig, error) {

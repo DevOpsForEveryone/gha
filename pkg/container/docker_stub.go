@@ -6,8 +6,8 @@ import (
 	"context"
 	"runtime"
 
-	"github.com/docker/docker/api/types/system"
 	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/docker/docker/api/types/system"
 	"github.com/pkg/errors"
 )
 

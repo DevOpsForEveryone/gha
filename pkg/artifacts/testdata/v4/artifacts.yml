@@ -3,7 +3,7 @@ on:
 jobs:
   _5:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
     - run: env
     - run: |
         github:
@@ -15,7 +15,7 @@ jobs:
         needs:
         ${{ tojson(needs) }}
         strategy:
-        ${{ tojson(strategy) }}            
+        ${{ tojson(strategy) }}
       shell: cp {0} context.txt
     - run: echo Artifact2 > data.txt
 
@@ -41,14 +41,14 @@ jobs:
       shell: bash
 
     - run: |
-        No content        
+        No content
       shell: cp {0} context.txt
     - uses: actions/upload-artifact@v4
       with:
         name: test
         path: context.txt
         overwrite: true
-  
+
     - uses: actions/download-artifact@v4
       with:
         name: test

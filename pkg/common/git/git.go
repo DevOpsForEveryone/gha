@@ -270,7 +270,7 @@ func CloneIfRequired(ctx context.Context, refName plumbing.ReferenceName, input 
 			return nil, err
 		}
 
-		if err = os.Chmod(input.Dir, 0o755); err != nil {
+		if err = os.Chmod(input.Dir, 0o750); err != nil {
 			return nil, err
 		}
 	}

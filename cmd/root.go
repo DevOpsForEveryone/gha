@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"bufio"
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -39,7 +39,9 @@ import (
 func generateRequestToken() string {
 	// Generate a random 32-byte token (simulating GitHub's request token)
 	bytes := make([]byte, 32)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		return ""
+	}
 	return base64.URLEncoding.EncodeToString(bytes)
 }
 
@@ -139,13 +141,13 @@ func createRootCommand(ctx context.Context, input *Input, version string) *cobra
 	rootCmd.PersistentFlags().StringArrayVarP(&input.localRepository, "local-repository", "", []string{}, "Replaces the specified repository and ref with a local folder (e.g. https://github.com/test/test@v0=/home/gha/test or test/test@v0=/home/gha/test, the latter matches any hosts or protocols)")
 	rootCmd.PersistentFlags().BoolVar(&input.listOptions, "list-options", false, "Print a json structure of compatible options")
 	rootCmd.PersistentFlags().IntVar(&input.concurrentJobs, "concurrent-jobs", 0, "Maximum number of concurrent jobs to run. Default is the number of CPUs available.")
-	
+
 	// Add OIDC command
 	rootCmd.AddCommand(createOIDCCommand())
-	
+
 	// Add Actions command
 	rootCmd.AddCommand(createActionsCommand())
-	
+
 	rootCmd.SetArgs(args())
 	return rootCmd
 }
@@ -293,6 +295,10 @@ func listOptions(cmd *cobra.Command) error {
 
 func readArgsFile(file string, split bool) []string {
 	args := make([]string, 0)
+	// Basic path validation
+	if file == "" || strings.Contains(file, "..") {
+		return args
+	}
 	f, err := os.Open(file)
 	if err != nil {
 		return args
@@ -347,6 +353,10 @@ func parseEnvs(env []string) map[string]string {
 }
 
 func readYamlFile(file string) (map[string]string, error) {
+	// Basic path validation
+	if file == "" || strings.Contains(file, "..") {
+		return nil, fmt.Errorf("invalid file path: %s", file)
+	}
 	content, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -425,7 +435,9 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if ret, err := container.GetSocketAndHost(input.containerDaemonSocket); err != nil {
 			log.Warnf("Couldn't get a valid docker connection: %+v", err)
 		} else {
-			os.Setenv("DOCKER_HOST", ret.Host)
+			if err := os.Setenv("DOCKER_HOST", ret.Host); err != nil {
+				log.Warnf("Failed to set DOCKER_HOST: %v", err)
+			}
 			input.containerDaemonSocket = ret.Socket
 			log.Infof("Using docker host '%s', and daemon socket '%s'", ret.Host, ret.Socket)
 		}
@@ -622,7 +634,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 		if oidcStatus, err := loadOIDCStatus(); err == nil && oidcStatus.Running && oidcStatus.NgrokURL != "" {
 			log.Infof("OIDC server detected, configuring environment variables")
 			oidcURL := oidcStatus.NgrokURL + "/token"
-			
+
 			// Use the stored password from OIDC status
 			requestToken := oidcStatus.Password
 			log.Infof("Using OIDC password: %s", requestToken)
@@ -630,12 +642,12 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 				log.Warnf("No OIDC password found in status")
 				return nil
 			}
-			
+
 			// Set OIDC environment variables
 			envs["ACTIONS_ID_TOKEN_REQUEST_URL"] = oidcURL
 			envs["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = requestToken
 			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in envs: %s", requestToken)
-			
+
 			// Set required GitHub environment variables for OIDC
 			envs["GITHUB_ACTIONS"] = "true"
 			if envs["GITHUB_REPOSITORY"] == "" {
@@ -653,10 +665,14 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			if envs["GITHUB_SHA"] == "" {
 				envs["GITHUB_SHA"] = "e374ef962fc15812c175ff9ad6c33d77b8684e05"
 			}
-			
+
 			// Also set in process environment for container inheritance
-			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL)
-			os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken)
+			if err := os.Setenv("ACTIONS_ID_TOKEN_REQUEST_URL", oidcURL); err != nil {
+				log.Warnf("Failed to set ACTIONS_ID_TOKEN_REQUEST_URL: %v", err)
+			}
+			if err := os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken); err != nil {
+				log.Warnf("Failed to set ACTIONS_ID_TOKEN_REQUEST_TOKEN: %v", err)
+			}
 			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in os.Setenv: %s", requestToken)
 		}
 
@@ -795,6 +811,10 @@ func defaultImageSurvey(actrc string) error {
 		option = "-P ubuntu-latest=node:16-buster-slim\n-P ubuntu-22.04=node:16-bullseye-slim\n-P ubuntu-20.04=node:16-buster-slim\n-P ubuntu-18.04=node:16-buster-slim\n"
 	}
 
+	// Basic path validation
+	if actrc == "" || strings.Contains(actrc, "..") {
+		return fmt.Errorf("invalid file path: %s", actrc)
+	}
 	f, err := os.Create(actrc)
 	if err != nil {
 		return err

@@ -20,4 +20,3 @@ jobs:
         with:
           entrypoint: /bin/sh
           args: -c 'uname -a'
-

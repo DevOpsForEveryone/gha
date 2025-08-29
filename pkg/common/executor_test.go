@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -82,34 +83,52 @@ func TestNewParallelExecutor(t *testing.T) {
 	count := 0
 	activeCount := 0
 	maxCount := 0
+	var mu sync.Mutex
 	emptyWorkflow := NewPipelineExecutor(func(_ context.Context) error {
+		mu.Lock()
 		count++
-
 		activeCount++
 		if activeCount > maxCount {
 			maxCount = activeCount
 		}
-		time.Sleep(2 * time.Second)
+		mu.Unlock()
+
+		time.Sleep(100 * time.Millisecond) // Reduced sleep time
+
+		mu.Lock()
 		activeCount--
+		mu.Unlock()
 
 		return nil
 	})
 
 	err := NewParallelExecutor(2, emptyWorkflow, emptyWorkflow, emptyWorkflow)(ctx)
 
-	assert.Equal(3, count, "should run all 3 executors")
-	assert.Equal(2, maxCount, "should run at most 2 executors in parallel")
+	mu.Lock()
+	finalCount := count
+	finalMaxCount := maxCount
+	mu.Unlock()
+
+	assert.Equal(3, finalCount, "should run all 3 executors")
+	assert.Equal(2, finalMaxCount, "should run at most 2 executors in parallel")
 	assert.Nil(err)
 
 	// Reset to test running the executor with 0 parallelism
+	mu.Lock()
 	count = 0
 	activeCount = 0
 	maxCount = 0
+	mu.Unlock()
 
 	errSingle := NewParallelExecutor(0, emptyWorkflow, emptyWorkflow, emptyWorkflow)(ctx)
 
-	assert.Equal(3, count, "should run all 3 executors")
-	assert.Equal(1, maxCount, "should run at most 1 executors in parallel")
+	mu.Lock()
+	finalCount = count
+	finalMaxCount = maxCount
+	mu.Unlock()
+
+	assert.Equal(3, finalCount, "should run all 3 executors")
+	assert.Equal(1, finalMaxCount, "should run at most 1 executors in parallel")
 	assert.Nil(errSingle)
 }
 

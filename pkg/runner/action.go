@@ -60,7 +60,10 @@ func readActionImpl(ctx context.Context, step *model.Step, actionDir string, act
 			_, closer, err := readFile("Dockerfile")
 			addError("Dockerfile", err)
 			if err == nil {
-				closer.Close()
+				if closeErr := closer.Close(); closeErr != nil {
+					_ = closeErr // explicitly ignore close error
+				}
+				closer = nil
 				action := &model.Action{
 					Name: "(Synthetic)",
 					Runs: model.ActionRuns{

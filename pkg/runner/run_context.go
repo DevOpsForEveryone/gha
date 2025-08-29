@@ -20,11 +20,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/DevOpsForEveryone/gha/pkg/common"
 	"github.com/DevOpsForEveryone/gha/pkg/container"
 	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
 	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/docker/go-connections/nat"
 	"github.com/opencontainers/selinux/go-selinux"
 )
 
@@ -200,15 +200,15 @@ func (rc *RunContext) startHostEnvironment() common.Executor {
 		_, _ = rand.Read(randBytes)
 		miscpath := filepath.Join(cacheDir, hex.EncodeToString(randBytes))
 		actPath := filepath.Join(miscpath, "gha")
-		if err := os.MkdirAll(actPath, 0o777); err != nil {
+		if err := os.MkdirAll(actPath, 0o750); err != nil {
 			return err
 		}
 		path := filepath.Join(miscpath, "hostexecutor")
-		if err := os.MkdirAll(path, 0o777); err != nil {
+		if err := os.MkdirAll(path, 0o750); err != nil {
 			return err
 		}
 		runnerTmp := filepath.Join(miscpath, "tmp")
-		if err := os.MkdirAll(runnerTmp, 0o777); err != nil {
+		if err := os.MkdirAll(runnerTmp, 0o750); err != nil {
 			return err
 		}
 		toolCache := filepath.Join(cacheDir, "tool_cache")
@@ -219,7 +219,9 @@ func (rc *RunContext) startHostEnvironment() common.Executor {
 			Workdir:   rc.Config.Workdir,
 			ActPath:   actPath,
 			CleanUp: func() {
-				os.RemoveAll(miscpath)
+				if err := os.RemoveAll(miscpath); err != nil {
+					_ = err // explicitly ignore cleanup error
+				}
 			},
 			StdOut: logWriter,
 		}
@@ -1059,7 +1061,7 @@ func (rc *RunContext) withGithubEnv(ctx context.Context, github *model.GithubCon
 	if rc.Config.ArtifactServerPath != "" {
 		setActionRuntimeVars(rc, env)
 	}
-	
+
 	// Set OIDC environment variables for AWS authentication
 	setOIDCVars(rc, env)
 
@@ -1102,9 +1104,9 @@ func setOIDCVars(rc *RunContext, env map[string]string) {
 	statusFile := os.ExpandEnv("$HOME/.local/state/gha/oidc-status.json")
 	if data, err := os.ReadFile(statusFile); err == nil {
 		var status struct {
-			Running   bool   `json:"running"`
-			NgrokURL  string `json:"ngrok_url"`
-			Password  string `json:"password"`
+			Running  bool   `json:"running"`
+			NgrokURL string `json:"ngrok_url"`
+			Password string `json:"password"`
 		}
 		if json.Unmarshal(data, &status) == nil && status.Running && status.NgrokURL != "" && status.Password != "" {
 			env["ACTIONS_ID_TOKEN_REQUEST_URL"] = status.NgrokURL + "/token"

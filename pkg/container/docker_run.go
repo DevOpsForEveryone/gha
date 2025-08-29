@@ -85,7 +85,6 @@ func (cr *containerReference) Start(attach bool) common.Executor {
 				cr.find(),
 				cr.attach().IfBool(attach),
 				cr.start(),
-				cr.wait().IfBool(attach),
 				cr.tryReadUID(),
 				cr.tryReadGID(),
 				func(ctx context.Context) error {

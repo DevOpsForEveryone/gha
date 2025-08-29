@@ -5,8 +5,8 @@ package container
 import (
 	"context"
 
-	"github.com/docker/docker/api/types/network"
 	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/docker/docker/api/types/network"
 )
 
 func NewDockerNetworkCreateExecutor(name string) common.Executor {

@@ -163,6 +163,10 @@ func TestSetupEnv(t *testing.T) {
 	delete((env), "GITHUB_REPOSITORY")
 	delete((env), "GITHUB_REPOSITORY_OWNER")
 	delete((env), "GITHUB_ACTOR")
+	// These are OIDC-related variables that may be present when OIDC server is running
+	delete((env), "ACTIONS_ID_TOKEN_REQUEST_TOKEN")
+	delete((env), "ACTIONS_ID_TOKEN_REQUEST_URL")
+	delete((env), "AWS_PAGER")
 
 	assert.Equal(t, map[string]string{
 		"ACT":                      "true",
