@@ -69,21 +69,21 @@ jobs:
           VERSION="${{ steps.new_version.outputs.version }}"
 
           # Linux
-          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-amd64 .
-          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-arm64 .
-          GOOS=linux GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-linux-386 .
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghalinux-amd64 .
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghalinux-arm64 .
+          GOOS=linux GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghalinux-386 .
 
           # Windows
-          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-amd64.exe .
-          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-arm64.exe .
-          GOOS=windows GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-windows-386.exe .
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghawindows-amd64.exe .
+          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghawindows-arm64.exe .
+          GOOS=windows GOARCH=386 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghawindows-386.exe .
 
           # macOS
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-darwin-amd64 .
-          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-darwin-arm64 .
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghadarwin-amd64 .
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghadarwin-arm64 .
 
           # FreeBSD
-          GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/act-freebsd-amd64 .
+          GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w -X main.version=$VERSION" -o dist/ghafreebsd-amd64 .
 
       - name: Create checksums
         run: |
