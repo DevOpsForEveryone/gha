@@ -7,12 +7,16 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 
+	"github.com/DevOpsForEveryone/gha/pkg/cache"
 	"github.com/DevOpsForEveryone/gha/pkg/gh"
 )
 
@@ -35,8 +39,8 @@ func createActionsCommand() *cobra.Command {
 
 	// List runs
 	runsCmd := &cobra.Command{
-		Use:   "runs [workflow-id]",
-		Short: "List workflow runs (optionally for a specific workflow)",
+		Use:   "runs [workflow-id|index]",
+		Short: "List workflow runs (optionally for a specific workflow by ID or index)",
 		RunE:  runListRuns,
 	}
 	runsCmd.Flags().IntP("limit", "l", 10, "Limit number of runs to display")
@@ -45,34 +49,36 @@ func createActionsCommand() *cobra.Command {
 
 	// Show jobs
 	jobsCmd := &cobra.Command{
-		Use:   "jobs <run-id>",
-		Short: "Show jobs for a specific workflow run",
+		Use:   "jobs <run-id|index>",
+		Short: "Show jobs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowJobs,
 	}
 
 	// Show logs
 	logsCmd := &cobra.Command{
-		Use:   "logs <run-id>",
-		Short: "Show logs for a specific workflow run",
+		Use:   "logs <run-id|index>",
+		Short: "Show logs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowLogs,
 	}
-	logsCmd.Flags().StringP("job", "j", "", "Show logs for specific job ID only")
+	logsCmd.Flags().StringP("job", "j", "", "Show logs for specific job ID or index only")
+	logsCmd.Flags().StringP("step", "s", "", "Show logs for specific step name only")
 	logsCmd.Flags().BoolP("raw", "r", false, "Show raw logs without formatting")
+	logsCmd.Flags().BoolP("timestamps", "t", true, "Show timestamps (default: true)")
 
 	// Show detailed run info
 	showCmd := &cobra.Command{
-		Use:   "show <run-id>",
-		Short: "Show detailed information about a workflow run",
+		Use:   "show <run-id|index>",
+		Short: "Show detailed information about a workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowRun,
 	}
 
 	// Watch runs in real-time
 	watchCmd := &cobra.Command{
-		Use:   "watch [workflow-id]",
-		Short: "Watch workflow runs in real-time",
+		Use:   "watch [workflow-id|index]",
+		Short: "Watch workflow runs in real-time (optionally for a specific workflow by ID or index)",
 		RunE:  runWatchRuns,
 	}
 	watchCmd.Flags().IntP("interval", "i", 5, "Refresh interval in seconds")
@@ -112,12 +118,16 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get workflows: %w", err)
 	}
 
+	// Store workflows in cache for index lookup
+	cache := cache.GetCache()
+	cache.StoreWorkflows(workflows)
+
 	fmt.Printf("\n🔄 Workflows for %s/%s\n\n", owner, repo)
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-	fmt.Fprintf(w, "ID\tNAME\tSTATE\tPATH\tLAST RUN\n")
+	fmt.Fprintf(w, "#\tID\tNAME\tSTATE\tPATH\tLAST RUN\n")
 
-	for _, workflow := range workflows {
+	for i, workflow := range workflows {
 		// Get latest run for this workflow
 		runs, _ := client.GetWorkflowRuns(ctx, owner, repo, workflow.ID)
 		lastRun := "Never"
@@ -126,7 +136,8 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 		}
 
 		stateIcon := getStateIcon(workflow.State)
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n",
+		fmt.Fprintf(w, "%d\t%d\t%s\t%s %s\t%s\t%s\n",
+			i+1,
 			workflow.ID,
 			workflow.Name,
 			stateIcon,
@@ -162,10 +173,11 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 	var runs []gh.WorkflowRun
 
 	if len(args) > 0 {
-		// Get runs for specific workflow
-		var workflowID int64
-		if _, err := fmt.Sscanf(args[0], "%d", &workflowID); err != nil {
-			return fmt.Errorf("invalid workflow ID: %s", args[0])
+		// Get runs for specific workflow - support both ID and index
+		cache := cache.GetCache()
+		workflowID, err := cache.ResolveWorkflowID(args[0])
+		if err != nil {
+			return err
 		}
 		runs, err = client.GetWorkflowRuns(ctx, owner, repo, workflowID)
 		fmt.Printf("\n🏃 Workflow runs for workflow %d in %s/%s\n\n", workflowID, owner, repo)
@@ -179,13 +191,17 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get workflow runs: %w", err)
 	}
 
-	// Apply filters
+	// Store all runs in cache for index lookup (before filtering)
+	cache := cache.GetCache()
+	cache.StoreRuns(runs)
+
+	// Apply filters for display
 	filteredRuns := filterRuns(runs, statusFilter, branchFilter, limit)
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-	fmt.Fprintf(w, "RUN ID\tWORKFLOW\tSTATUS\tCONCLUSION\tBRANCH\tEVENT\tCREATED\tDURATION\n")
+	fmt.Fprintf(w, "#\tRUN ID\tWORKFLOW\tSTATUS\tCONCLUSION\tBRANCH\tEVENT\tCREATED\tDURATION\n")
 
-	for _, run := range filteredRuns {
+	for i, run := range filteredRuns {
 		conclusion := run.Conclusion
 		if conclusion == "" {
 			conclusion = "-"
@@ -194,7 +210,8 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 		statusIcon := getStatusIcon(run.Status, conclusion)
 		duration := calculateDuration(run.CreatedAt, run.UpdatedAt)
 
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\t%s\n",
+		fmt.Fprintf(w, "%d\t%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\t%s\n",
+			i+1,
 			run.ID,
 			run.Name,
 			statusIcon,
@@ -232,9 +249,11 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var runID int64
-	if _, err := fmt.Sscanf(args[0], "%d", &runID); err != nil {
-		return fmt.Errorf("invalid run ID: %s", args[0])
+	// Resolve run ID from input (supports both ID and index)
+	cache := cache.GetCache()
+	runID, err := cache.ResolveRunID(args[0])
+	if err != nil {
+		return err
 	}
 
 	client := gh.NewClient(token)
@@ -243,12 +262,15 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get jobs: %w", err)
 	}
 
+	// Store jobs in cache for index lookup
+	cache.StoreJobs(runID, jobs)
+
 	fmt.Printf("\n💼 Jobs for run %d\n\n", runID)
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-	fmt.Fprintf(w, "JOB ID\tNAME\tSTATUS\tCONCLUSION\tSTARTED\tCOMPLETED\tDURATION\n")
+	fmt.Fprintf(w, "#\tJOB ID\tNAME\tSTATUS\tCONCLUSION\tSTARTED\tCOMPLETED\tDURATION\n")
 
-	for _, job := range jobs {
+	for i, job := range jobs {
 		conclusion := job.Conclusion
 		if conclusion == "" {
 			conclusion = "-"
@@ -271,7 +293,8 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 
 		statusIcon := getStatusIcon(job.Status, conclusion)
 
-		fmt.Fprintf(w, "%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\n",
+		fmt.Fprintf(w, "%d\t%d\t%s\t%s %s\t%s %s\t%s\t%s\t%s\n",
+			i+1,
 			job.ID,
 			job.Name,
 			statusIcon,
@@ -301,21 +324,59 @@ func runShowLogs(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var runID int64
-	if _, err := fmt.Sscanf(args[0], "%d", &runID); err != nil {
-		return fmt.Errorf("invalid run ID: %s", args[0])
+	// Resolve run ID from input (supports both ID and index)
+	cache := cache.GetCache()
+	runID, err := cache.ResolveRunID(args[0])
+	if err != nil {
+		return err
 	}
 
+	// Get flag values
+	jobFilter, _ := cmd.Flags().GetString("job")
+	stepFilter, _ := cmd.Flags().GetString("step")
+	rawOutput, _ := cmd.Flags().GetBool("raw")
+	showTimestamps, _ := cmd.Flags().GetBool("timestamps")
+
 	client := gh.NewClient(token)
+
+	// If job filtering is requested, resolve job ID from index if needed
+	var resolvedJobID int64
+	if jobFilter != "" {
+		resolvedJobID, err = cache.ResolveJobID(runID, jobFilter)
+		if err != nil {
+			return fmt.Errorf("failed to resolve job: %w", err)
+		}
+	}
+
+	// Get jobs for ordering information
+	jobs, err := client.GetJobs(ctx, owner, repo, runID)
+	if err != nil {
+		return fmt.Errorf("failed to get jobs: %w", err)
+	}
+
 	logsData, err := client.GetLogs(ctx, owner, repo, runID)
 	if err != nil {
 		return fmt.Errorf("failed to get logs: %w", err)
 	}
 
-	fmt.Printf("Logs for run %d:\n\n", runID)
+	// Show header with job info if filtering by job
+	var jobInfo string
+	if resolvedJobID != 0 {
+		for _, job := range jobs {
+			if job.ID == resolvedJobID {
+				jobInfo = fmt.Sprintf(", Job ID: %d (%s)", job.ID, job.Name)
+				break
+			}
+		}
+	}
 
-	// Extract and display logs from ZIP file
-	if err := extractAndDisplayLogs(logsData); err != nil {
+	// Always show the header (even with --raw) when job filtering is used
+	if resolvedJobID != 0 || !rawOutput {
+		fmt.Printf("Logs for run %d%s:\n\n", runID, jobInfo)
+	}
+
+	// Extract and display logs with improved ordering and filtering
+	if err := extractAndDisplayLogsImproved(logsData, jobs, resolvedJobID, stepFilter, rawOutput, showTimestamps); err != nil {
 		return fmt.Errorf("failed to extract logs: %w", err)
 	}
 
@@ -351,6 +412,218 @@ func extractAndDisplayLogs(zipData []byte) error {
 	}
 
 	return nil
+}
+
+type LogFile struct {
+	Name    string
+	Content string
+	JobID   int64
+	JobName string
+	StepNum int
+}
+
+func extractAndDisplayLogsImproved(zipData []byte, jobs []gh.Job, jobFilter int64, stepFilter string, rawOutput bool, showTimestamps bool) error {
+	reader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
+	if err != nil {
+		return err
+	}
+
+	// Create job lookup map
+	jobMap := make(map[int64]gh.Job)
+	for _, job := range jobs {
+		jobMap[job.ID] = job
+	}
+
+	// Extract and parse log files
+	var logFiles []LogFile
+	for _, file := range reader.File {
+		if strings.HasSuffix(file.Name, ".txt") {
+			rc, err := file.Open()
+			if err != nil {
+				fmt.Printf("Error opening %s: %v\n", file.Name, err)
+				continue
+			}
+
+			content, err := io.ReadAll(rc)
+			rc.Close()
+			if err != nil {
+				fmt.Printf("Error reading %s: %v\n", file.Name, err)
+				continue
+			}
+
+			// Parse job ID and step number from filename
+			jobID, stepNum := parseLogFileName(file.Name)
+
+			logFile := LogFile{
+				Name:    file.Name,
+				Content: string(content),
+				JobID:   jobID,
+				StepNum: stepNum,
+			}
+
+			// Add job name if available
+			if job, exists := jobMap[jobID]; exists {
+				logFile.JobName = job.Name
+			}
+
+			logFiles = append(logFiles, logFile)
+		}
+	}
+
+	// Correlate logs with jobs
+	logFiles = correlateLogsWithJobs(logFiles, jobs)
+
+	// Create updated job map after correlation
+	updatedJobMap := make(map[int64]gh.Job)
+	for _, job := range jobs {
+		updatedJobMap[job.ID] = job
+	}
+
+	// Sort log files by job start time, then by step number
+	sort.Slice(logFiles, func(i, j int) bool {
+		logI := logFiles[i]
+		logJ := logFiles[j]
+
+		// If same job, sort by step number
+		if logI.JobID == logJ.JobID {
+			return logI.StepNum < logJ.StepNum
+		}
+
+		// Different jobs - sort by job start time
+		jobI, existsI := updatedJobMap[logI.JobID]
+		jobJ, existsJ := updatedJobMap[logJ.JobID]
+
+		if existsI && existsJ {
+			// If start times are different, sort by start time
+			if !jobI.StartedAt.Equal(jobJ.StartedAt) {
+				return jobI.StartedAt.Before(jobJ.StartedAt)
+			}
+			// If start times are same, sort by job ID for consistency
+			return jobI.ID < jobJ.ID
+		}
+
+		// Fallback: sort by step number if job info not available
+		return logI.StepNum < logJ.StepNum
+	})
+
+	// Display logs with filtering
+	for _, logFile := range logFiles {
+		// Apply job filter
+		if jobFilter != 0 && logFile.JobID != jobFilter {
+			continue
+		}
+
+		// Apply step filter
+		if stepFilter != "" && !strings.Contains(strings.ToLower(logFile.Name), strings.ToLower(stepFilter)) {
+			continue
+		}
+
+		// Display log file
+		if rawOutput {
+			fmt.Print(logFile.Content)
+		} else {
+			jobName := logFile.JobName
+			if jobName == "" {
+				jobName = fmt.Sprintf("Job %d", logFile.JobID)
+			}
+
+			fmt.Printf("=== %s (%s) ===\n", logFile.Name, jobName)
+
+			if showTimestamps {
+				fmt.Print(logFile.Content)
+			} else {
+				// Remove timestamps if requested
+				content := logFile.Content
+				// Remove BOM if present
+				if strings.HasPrefix(content, "\xef\xbb\xbf") {
+					content = content[3:]
+				}
+
+				lines := strings.Split(content, "\n")
+				timestampRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s`)
+				for _, line := range lines {
+					cleanLine := timestampRegex.ReplaceAllString(line, "")
+					fmt.Println(cleanLine)
+				}
+			}
+			fmt.Println()
+		}
+	}
+
+	return nil
+}
+
+func parseLogFileName(filename string) (jobID int64, stepNum int) {
+	// Log files are typically named like "0_jobname.txt", "1_stepname.txt", etc.
+	// or "jobname/system.txt" for system logs
+
+	// Handle numbered files like "0_jobname.txt", "1_stepname.txt"
+	if strings.Contains(filename, "_") {
+		parts := strings.Split(strings.TrimSuffix(filename, ".txt"), "_")
+		if len(parts) >= 1 {
+			if num, err := strconv.Atoi(parts[0]); err == nil {
+				stepNum = num
+				return 0, stepNum
+			}
+		}
+	}
+
+	// Handle system files like "jobname/system.txt" - assign negative step number to show first
+	if strings.Contains(filename, "/system.txt") {
+		stepNum = -1 // Negative number to sort system logs before regular steps
+	}
+
+	// Return 0 for now - will be corrected in correlateLogsWithJobs
+	return 0, stepNum
+}
+
+func correlateLogsWithJobs(logFiles []LogFile, jobs []gh.Job) []LogFile {
+	// Create a map of job names to job info for correlation
+	jobNameMap := make(map[string]gh.Job)
+	for _, job := range jobs {
+		jobNameMap[strings.ToLower(job.Name)] = job
+	}
+
+	for i := range logFiles {
+		logFile := &logFiles[i]
+
+		// Try to match by filename patterns
+		filename := strings.ToLower(logFile.Name)
+
+		// Check for direct job name matches in filename or path
+		for jobName, job := range jobNameMap {
+			if strings.Contains(filename, jobName) {
+				logFile.JobID = job.ID
+				logFile.JobName = job.Name
+				break
+			}
+		}
+
+		// If no match found and it's a numbered file (like "0_something.txt")
+		// try to correlate by step number with job order
+		if logFile.JobID == 0 && len(jobs) > 1 {
+			parts := strings.Split(strings.TrimSuffix(logFile.Name, ".txt"), "_")
+			if len(parts) >= 2 {
+				// Try to match the second part (job name) with actual job names
+				stepName := strings.ToLower(parts[1])
+				for jobName, job := range jobNameMap {
+					if strings.Contains(jobName, stepName) || strings.Contains(stepName, jobName) {
+						logFile.JobID = job.ID
+						logFile.JobName = job.Name
+						break
+					}
+				}
+			}
+		}
+
+		// If still no match, assign to first job as fallback
+		if logFile.JobID == 0 && len(jobs) > 0 {
+			logFile.JobID = jobs[0].ID
+			logFile.JobName = jobs[0].Name
+		}
+	}
+
+	return logFiles
 }
 
 func truncateString(s string, maxLen int) string {
@@ -473,9 +746,11 @@ func runShowRun(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	var runID int64
-	if _, err := fmt.Sscanf(args[0], "%d", &runID); err != nil {
-		return fmt.Errorf("invalid run ID: %s", args[0])
+	// Resolve run ID from input (supports both ID and index)
+	cache := cache.GetCache()
+	runID, err := cache.ResolveRunID(args[0])
+	if err != nil {
+		return err
 	}
 
 	client := gh.NewClient(token)
@@ -571,10 +846,11 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 		var runs []gh.WorkflowRun
 
 		if len(args) > 0 {
-			// Watch specific workflow
-			var workflowID int64
-			if _, err := fmt.Sscanf(args[0], "%d", &workflowID); err != nil {
-				return fmt.Errorf("invalid workflow ID: %s", args[0])
+			// Watch specific workflow - support both ID and index
+			cache := cache.GetCache()
+			workflowID, err := cache.ResolveWorkflowID(args[0])
+			if err != nil {
+				return err
 			}
 			runs, err = client.GetWorkflowRuns(ctx, owner, repo, workflowID)
 		} else {

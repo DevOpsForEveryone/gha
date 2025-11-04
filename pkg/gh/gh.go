@@ -5,40 +5,68 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
+	"strings"
 )
 
 func GetToken(ctx context.Context, workingDirectory string) (string, error) {
-	var token string
+	// First try environment variable
+	if token := os.Getenv("GITHUB_TOKEN"); token != "" {
+		return token, nil
+	}
+	if token := os.Getenv("GH_TOKEN"); token != "" {
+		return token, nil
+	}
 
-	// Locate the 'gh' executable
-	path, err := exec.LookPath("gh")
+	// Try to get token from git credential helper
+	token, err := getTokenFromGitCredentials(ctx, workingDirectory)
+	if err == nil && token != "" {
+		return token, nil
+	}
+
+	return "", fmt.Errorf("no GitHub token found. Please set GITHUB_TOKEN environment variable or configure git credentials for github.com")
+}
+
+func getTokenFromGitCredentials(ctx context.Context, workingDirectory string) (string, error) {
+	// Locate the 'git' executable
+	gitPath, err := exec.LookPath("git")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("git executable not found: %w", err)
 	}
 
-	// Command setup - validate path is safe
-	if path == "" {
-		return "", fmt.Errorf("gh executable not found")
-	}
-	cmd := exec.CommandContext(ctx, path, "auth", "token")
+	// Use git credential fill to get stored credentials for github.com
+	cmd := exec.CommandContext(ctx, gitPath, "credential", "fill")
 	cmd.Dir = workingDirectory
 
-	// Capture the output
-	var out bytes.Buffer
-	cmd.Stdout = &out
+	// Provide the credential request
+	cmd.Stdin = strings.NewReader("protocol=https\nhost=github.com\n\n")
 
-	// Run the command
+	var out bytes.Buffer
+	var errOut bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &errOut
+
 	err = cmd.Run()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("git credential fill failed: %w", err)
 	}
 
-	// Read the first line of the output
+	// Parse the credential response
 	scanner := bufio.NewScanner(&out)
-	if scanner.Scan() {
-		token = scanner.Text()
+	var password string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "password=") {
+			password = strings.TrimPrefix(line, "password=")
+		}
 	}
 
-	return token, nil
+	// For GitHub, the password field contains the token/PAT
+	if password != "" {
+		return password, nil
+	}
+
+	return "", fmt.Errorf("no password/token found in git credentials for github.com")
 }

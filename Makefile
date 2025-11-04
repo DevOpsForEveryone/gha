@@ -13,10 +13,7 @@ endif
 
 GHA ?= go run main.go
 
-HAS_TOKEN = $(if $(test -e ~/.config/github/token),true,false)
-ifeq (true,$(HAS_TOKEN))
-	export GITHUB_TOKEN := $(shell cat ~/.config/github/token)
-endif
+# GITHUB_TOKEN can be set as environment variable or via git credentials
 
 .PHONY: pr
 pr: tidy format-all lint test
