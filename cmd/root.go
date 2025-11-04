@@ -637,7 +637,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 
 			// Use the stored password from OIDC status
 			requestToken := oidcStatus.Password
-			log.Infof("Using OIDC password: %s", requestToken)
+			log.Infof("Using OIDC password: [REDACTED]")
 			if requestToken == "" {
 				log.Warnf("No OIDC password found in status")
 				return nil
@@ -646,7 +646,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			// Set OIDC environment variables
 			envs["ACTIONS_ID_TOKEN_REQUEST_URL"] = oidcURL
 			envs["ACTIONS_ID_TOKEN_REQUEST_TOKEN"] = requestToken
-			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in envs: %s", requestToken)
+			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in envs: [REDACTED]")
 
 			// Set required GitHub environment variables for OIDC
 			envs["GITHUB_ACTIONS"] = "true"
@@ -673,7 +673,7 @@ func newRunCommand(ctx context.Context, input *Input) func(*cobra.Command, []str
 			if err := os.Setenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN", requestToken); err != nil {
 				log.Warnf("Failed to set ACTIONS_ID_TOKEN_REQUEST_TOKEN: %v", err)
 			}
-			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in os.Setenv: %s", requestToken)
+			log.Infof("Set ACTIONS_ID_TOKEN_REQUEST_TOKEN in os.Setenv: [REDACTED]")
 		}
 
 		// run the plan

@@ -32,14 +32,14 @@ func createActionsCommand() *cobra.Command {
 
 	// List workflows
 	listCmd := &cobra.Command{
-		Use:   "list",
+		Use:   "--list",
 		Short: "List all workflows in the repository",
 		RunE:  runListWorkflows,
 	}
 
 	// List runs
 	runsCmd := &cobra.Command{
-		Use:   "runs [workflow-id|index]",
+		Use:   "--runs [workflow-id|index]",
 		Short: "List workflow runs (optionally for a specific workflow by ID or index)",
 		RunE:  runListRuns,
 	}
@@ -49,7 +49,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Show jobs
 	jobsCmd := &cobra.Command{
-		Use:   "jobs <run-id|index>",
+		Use:   "--jobs <run-id|index>",
 		Short: "Show jobs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowJobs,
@@ -57,7 +57,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Show logs
 	logsCmd := &cobra.Command{
-		Use:   "logs <run-id|index>",
+		Use:   "--logs <run-id|index>",
 		Short: "Show logs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowLogs,
@@ -69,7 +69,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Show detailed run info
 	showCmd := &cobra.Command{
-		Use:   "show <run-id|index>",
+		Use:   "--show <run-id|index>",
 		Short: "Show detailed information about a workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowRun,
@@ -77,7 +77,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Watch runs in real-time
 	watchCmd := &cobra.Command{
-		Use:   "watch [workflow-id|index]",
+		Use:   "--watch [workflow-id|index]",
 		Short: "Watch workflow runs in real-time (optionally for a specific workflow by ID or index)",
 		RunE:  runWatchRuns,
 	}
@@ -180,15 +180,17 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 			return err
 		}
 		runs, err = client.GetWorkflowRuns(ctx, owner, repo, workflowID)
+		if err != nil {
+			return fmt.Errorf("failed to get workflow runs: %w", err)
+		}
 		fmt.Printf("\n🏃 Workflow runs for workflow %d in %s/%s\n\n", workflowID, owner, repo)
 	} else {
 		// Get all runs
 		runs, err = client.GetAllWorkflowRuns(ctx, owner, repo)
+		if err != nil {
+			return fmt.Errorf("failed to get workflow runs: %w", err)
+		}
 		fmt.Printf("\n🏃 All workflow runs for %s/%s\n\n", owner, repo)
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to get workflow runs: %w", err)
 	}
 
 	// Store all runs in cache for index lookup (before filtering)
@@ -535,9 +537,7 @@ func extractAndDisplayLogsImproved(zipData []byte, jobs []gh.Job, jobFilter int6
 				// Remove timestamps if requested
 				content := logFile.Content
 				// Remove BOM if present
-				if strings.HasPrefix(content, "\xef\xbb\xbf") {
-					content = content[3:]
-				}
+				content = strings.TrimPrefix(content, "\xef\xbb\xbf")
 
 				lines := strings.Split(content, "\n")
 				timestampRegex := regexp.MustCompile(`^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z\s`)
