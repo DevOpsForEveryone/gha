@@ -25,21 +25,46 @@ func createActionsCommand() *cobra.Command {
 		Use:   "actions",
 		Short: "View GitHub Actions workflows, runs, and logs",
 		Long:  "View GitHub Actions workflows, runs, statuses, and logs from GitHub API",
+		RunE:  runActionsWithFlags,
 	}
 
 	// Add platform flag to prevent conflicts with .gharc config
 	actionsCmd.PersistentFlags().StringArrayP("platform", "P", []string{}, "custom image to use per platform (ignored for actions commands)")
 
+	// Add flag-style commands
+	actionsCmd.Flags().Bool("list", false, "List all workflows in the repository")
+	actionsCmd.Flags().Bool("runs", false, "List workflow runs")
+	actionsCmd.Flags().String("runs-for", "", "List workflow runs for a specific workflow by ID or index")
+	actionsCmd.Flags().String("jobs", "", "Show jobs for a specific workflow run (by ID or index)")
+	actionsCmd.Flags().String("logs", "", "Show logs for a specific workflow run (by ID or index)")
+	actionsCmd.Flags().String("show", "", "Show detailed information about a workflow run (by ID or index)")
+	actionsCmd.Flags().Bool("watch", false, "Watch workflow runs in real-time")
+	actionsCmd.Flags().String("watch-for", "", "Watch workflow runs for a specific workflow by ID or index")
+
+	// Additional flags for runs command
+	actionsCmd.Flags().IntP("limit", "l", 10, "Limit number of runs to display")
+	actionsCmd.Flags().StringP("status", "s", "", "Filter by status (queued, in_progress, completed)")
+	actionsCmd.Flags().StringP("branch", "b", "", "Filter by branch name")
+
+	// Additional flags for logs command
+	actionsCmd.Flags().StringP("job", "j", "", "Show logs for specific job ID or index only")
+	actionsCmd.Flags().String("step", "", "Show logs for specific step name only")
+	actionsCmd.Flags().BoolP("raw", "r", false, "Show raw logs without formatting")
+	actionsCmd.Flags().BoolP("timestamps", "t", true, "Show timestamps (default: true)")
+
+	// Additional flags for watch command
+	actionsCmd.Flags().IntP("interval", "i", 5, "Refresh interval in seconds")
+
 	// List workflows
 	listCmd := &cobra.Command{
-		Use:   "--list",
+		Use:   "list",
 		Short: "List all workflows in the repository",
 		RunE:  runListWorkflows,
 	}
 
 	// List runs
 	runsCmd := &cobra.Command{
-		Use:   "--runs [workflow-id|index]",
+		Use:   "runs [workflow-id|index]",
 		Short: "List workflow runs (optionally for a specific workflow by ID or index)",
 		RunE:  runListRuns,
 	}
@@ -49,7 +74,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Show jobs
 	jobsCmd := &cobra.Command{
-		Use:   "--jobs <run-id|index>",
+		Use:   "jobs <run-id|index>",
 		Short: "Show jobs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowJobs,
@@ -57,19 +82,19 @@ func createActionsCommand() *cobra.Command {
 
 	// Show logs
 	logsCmd := &cobra.Command{
-		Use:   "--logs <run-id|index>",
+		Use:   "logs <run-id|index>",
 		Short: "Show logs for a specific workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowLogs,
 	}
 	logsCmd.Flags().StringP("job", "j", "", "Show logs for specific job ID or index only")
-	logsCmd.Flags().StringP("step", "s", "", "Show logs for specific step name only")
+	logsCmd.Flags().String("step", "", "Show logs for specific step name only")
 	logsCmd.Flags().BoolP("raw", "r", false, "Show raw logs without formatting")
 	logsCmd.Flags().BoolP("timestamps", "t", true, "Show timestamps (default: true)")
 
 	// Show detailed run info
 	showCmd := &cobra.Command{
-		Use:   "--show <run-id|index>",
+		Use:   "show <run-id|index>",
 		Short: "Show detailed information about a workflow run (by ID or index)",
 		Args:  cobra.ExactArgs(1),
 		RunE:  runShowRun,
@@ -77,7 +102,7 @@ func createActionsCommand() *cobra.Command {
 
 	// Watch runs in real-time
 	watchCmd := &cobra.Command{
-		Use:   "--watch [workflow-id|index]",
+		Use:   "watch [workflow-id|index]",
 		Short: "Watch workflow runs in real-time (optionally for a specific workflow by ID or index)",
 		RunE:  runWatchRuns,
 	}
@@ -85,6 +110,44 @@ func createActionsCommand() *cobra.Command {
 
 	actionsCmd.AddCommand(listCmd, runsCmd, jobsCmd, logsCmd, showCmd, watchCmd)
 	return actionsCmd
+}
+
+func runActionsWithFlags(cmd *cobra.Command, args []string) error {
+	// Check which flag was used and route to appropriate function
+	if listFlag, _ := cmd.Flags().GetBool("list"); listFlag {
+		return runListWorkflows(cmd, args)
+	}
+
+	if runsFlag, _ := cmd.Flags().GetString("runs"); runsFlag != "" || cmd.Flags().Changed("runs") {
+		// If runs flag has a value, add it to args
+		if runsFlag != "" {
+			args = append(args, runsFlag)
+		}
+		return runListRuns(cmd, args)
+	}
+
+	if jobsFlag, _ := cmd.Flags().GetString("jobs"); jobsFlag != "" {
+		return runShowJobs(cmd, []string{jobsFlag})
+	}
+
+	if logsFlag, _ := cmd.Flags().GetString("logs"); logsFlag != "" {
+		return runShowLogs(cmd, []string{logsFlag})
+	}
+
+	if showFlag, _ := cmd.Flags().GetString("show"); showFlag != "" {
+		return runShowRun(cmd, []string{showFlag})
+	}
+
+	if watchFlag, _ := cmd.Flags().GetString("watch"); watchFlag != "" || cmd.Flags().Changed("watch") {
+		// If watch flag has a value, add it to args
+		if watchFlag != "" {
+			args = append(args, watchFlag)
+		}
+		return runWatchRuns(cmd, args)
+	}
+
+	// If no flags were used, show help
+	return cmd.Help()
 }
 
 func getRepoInfo() (owner, repo string, err error) {
