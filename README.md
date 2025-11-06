@@ -426,8 +426,12 @@ GHA includes an OIDC (OpenID Connect) server for testing cloud provider integrat
 # Start OIDC server with ngrok forwarding
 gha oidc start
 
-# Start with custom domain
+# Start with custom domain (command line)
 gha oidc start --domain my-custom-domain.ngrok.io
+
+# Or configure domain in .gharc for persistent use
+echo "--domain my-custom-domain.ngrok.io" >> .gharc
+gha oidc start
 
 # Check server status
 gha oidc status
@@ -654,6 +658,14 @@ Configuration files contain command-line flags, one per line:
 --platform ubuntu-latest=myregistry/ubuntu:latest
 --platform node:16=myregistry/node:16-custom
 --platform python:3.9=myregistry/python:3.9-custom
+```
+
+**OIDC Configuration:**
+
+```bash
+# .gharc with custom ngrok domain for OIDC
+--domain my-custom-domain.ngrok.io
+--artifact-server-path ./artifacts
 ```
 
 ### Environment Variables

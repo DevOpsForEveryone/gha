@@ -141,6 +141,7 @@ func createRootCommand(ctx context.Context, input *Input, version string) *cobra
 	rootCmd.PersistentFlags().StringArrayVarP(&input.localRepository, "local-repository", "", []string{}, "Replaces the specified repository and ref with a local folder (e.g. https://github.com/test/test@v0=/home/gha/test or test/test@v0=/home/gha/test, the latter matches any hosts or protocols)")
 	rootCmd.PersistentFlags().BoolVar(&input.listOptions, "list-options", false, "Print a json structure of compatible options")
 	rootCmd.PersistentFlags().IntVar(&input.concurrentJobs, "concurrent-jobs", 0, "Maximum number of concurrent jobs to run. Default is the number of CPUs available.")
+	rootCmd.PersistentFlags().StringVarP(&input.domain, "domain", "d", "", "Custom ngrok domain to use for OIDC server (e.g. myapp.ngrok.io)")
 
 	// Add OIDC command
 	rootCmd.AddCommand(createOIDCCommand())

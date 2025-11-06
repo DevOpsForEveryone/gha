@@ -35,11 +35,20 @@ func createOIDCCommand() *cobra.Command {
 	oidcCmd := &cobra.Command{
 		Use:   "oidc",
 		Short: "Manage OIDC server for local GitHub Actions",
-		Long:  "Start, stop, and check status of OIDC server with ngrok forwarding",
+		Long: `Start, stop, and check status of OIDC server with ngrok forwarding
+
+The OIDC server supports custom ngrok domains using the global --domain flag:
+  gha oidc start --domain my-custom-domain.ngrok.io
+
+Or configure the domain in .gharc for persistent use:
+  echo "--domain my-custom-domain.ngrok.io" >> .gharc`,
 	}
 
-	// Hide global flags from help output
+	// Hide global flags from help output except for domain
 	hideGlobalFlags(oidcCmd)
+
+	// Add domain flag locally so it shows in help
+	oidcCmd.PersistentFlags().StringP("domain", "d", "", "Custom ngrok domain to use (e.g. myapp.ngrok.io)")
 
 	// Add platform flag to prevent conflicts with .gharc config
 	oidcCmd.PersistentFlags().StringArrayP("platform", "P", []string{}, "custom image to use per platform (ignored for OIDC commands)")
@@ -58,12 +67,24 @@ func createOIDCStartCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start OIDC server and ngrok forwarding",
+		Long: `Starts a local OIDC server on port 8080 and creates an ngrok tunnel for external access.
+The server provides JWT tokens for GitHub Actions OIDC authentication.
+
+Examples:
+  gha oidc start                                    # Use random ngrok domain
+  gha oidc start --domain my-domain.ngrok.io       # Use custom domain
+
+Configure domain in .gharc for persistent use:
+  echo "--domain my-domain.ngrok.io" >> .gharc`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Get domain from local flag first, then fall back to global flag
 			domain, _ := cmd.Flags().GetString("domain")
+			if domain == "" {
+				domain, _ = cmd.Root().PersistentFlags().GetString("domain")
+			}
 			return startOIDCServerWithDomain(domain)
 		},
 	}
-	cmd.Flags().StringP("domain", "d", "", "Custom ngrok domain to use (e.g. myapp.ngrok.io)")
 	return cmd
 }
 
@@ -567,8 +588,6 @@ func stopOIDCServer() error {
 	if err != nil {
 		return fmt.Errorf("failed to load status: %w", err)
 	}
-
-	fmt.Printf("Debug: Status loaded - Running: %v, PID: %d\n", status.Running, status.PID)
 
 	if !status.Running {
 		fmt.Println("OIDC server is not running")
