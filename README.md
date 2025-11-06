@@ -1,6 +1,6 @@
 # GHA - GitHub Actions Runner
 
-[![Version](https://img.shields.io/badge/version-0.2.80-blue.svg)](https://github.com/DevOpsForEveryone/gha/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/DevOpsForEveryone/gha/releases)
 [![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8.svg)](https://golang.org)
 [![Docker](https://img.shields.io/badge/docker-20.10+-2496ED.svg)](https://docker.com)
 
