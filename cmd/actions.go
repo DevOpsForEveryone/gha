@@ -502,37 +502,6 @@ func runShowLogs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func extractAndDisplayLogs(zipData []byte) error {
-	reader, err := zip.NewReader(bytes.NewReader(zipData), int64(len(zipData)))
-	if err != nil {
-		return err
-	}
-
-	for _, file := range reader.File {
-		if strings.HasSuffix(file.Name, ".txt") {
-			fmt.Printf("=== %s ===\n", file.Name)
-
-			rc, err := file.Open()
-			if err != nil {
-				fmt.Printf("Error opening %s: %v\n", file.Name, err)
-				continue
-			}
-
-			content, err := io.ReadAll(rc)
-			rc.Close()
-			if err != nil {
-				fmt.Printf("Error reading %s: %v\n", file.Name, err)
-				continue
-			}
-
-			fmt.Println(string(content))
-			fmt.Println()
-		}
-	}
-
-	return nil
-}
-
 type LogFile struct {
 	Name    string
 	Content string
@@ -741,13 +710,6 @@ func correlateLogsWithJobs(logFiles []LogFile, jobs []gh.Job) []LogFile {
 	}
 
 	return logFiles
-}
-
-func truncateString(s string, maxLen int) string {
-	if len(s) <= maxLen {
-		return s
-	}
-	return s[:maxLen-3] + "..."
 }
 
 func getStatusIcon(status, conclusion string) string {
