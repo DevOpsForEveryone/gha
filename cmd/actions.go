@@ -1469,7 +1469,7 @@ func showRerunOptions(runs []gh.WorkflowRun) {
 	if len(failedRuns) > 0 {
 		fmt.Printf("\n Quick Rerun Options:\n")
 		for i, run := range failedRuns {
-			if i >= 3 { // Show only first 3 failed runs
+			if i >= 1 { // Show only first 3 failed runs
 				break
 			}
 			fmt.Printf("  gha actions --rerun %d              # Rerun all jobs\n", run.ID)
