@@ -230,7 +230,7 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 	cache := cache.GetCache()
 	cache.StoreWorkflows(workflows)
 
-	fmt.Printf("\n🔄 Workflows for %s/%s\n\n", owner, repo)
+	fmt.Printf("\n Workflows for %s/%s\n\n", owner, repo)
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "#\tID\tNAME\tSTATE\tPATH\tLAST RUN\n")
@@ -255,7 +255,7 @@ func runListWorkflows(cmd *cobra.Command, args []string) error {
 	}
 
 	w.Flush()
-	fmt.Printf("\n📊 Total: %d workflows\n", len(workflows))
+	fmt.Printf("\n Total: %d workflows\n", len(workflows))
 
 	// Show trigger options for active workflows
 	showWorkflowTriggerOptions(workflows)
@@ -294,14 +294,14 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return fmt.Errorf("failed to get workflow runs: %w", err)
 		}
-		fmt.Printf("\n🏃 Workflow runs for workflow %d in %s/%s\n\n", workflowID, owner, repo)
+		fmt.Printf("\n Workflow runs for workflow %d in %s/%s\n\n", workflowID, owner, repo)
 	} else {
 		// Get all runs
 		runs, err = client.GetAllWorkflowRuns(ctx, owner, repo)
 		if err != nil {
 			return fmt.Errorf("failed to get workflow runs: %w", err)
 		}
-		fmt.Printf("\n🏃 All workflow runs for %s/%s\n\n", owner, repo)
+		fmt.Printf("\n All workflow runs for %s/%s\n\n", owner, repo)
 	}
 
 	// Store all runs in cache for index lookup (before filtering)
@@ -338,7 +338,7 @@ func runListRuns(cmd *cobra.Command, args []string) error {
 	}
 
 	w.Flush()
-	fmt.Printf("\n📊 Showing %d of %d runs", len(filteredRuns), len(runs))
+	fmt.Printf("\n Showing %d of %d runs", len(filteredRuns), len(runs))
 	if statusFilter != "" {
 		fmt.Printf(" (filtered by status: %s)", statusFilter)
 	}
@@ -381,7 +381,7 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 	// Store jobs in cache for index lookup
 	cache.StoreJobs(runID, jobs)
 
-	fmt.Printf("\n💼 Jobs for run %d\n\n", runID)
+	fmt.Printf("\n Jobs for run %d\n\n", runID)
 
 	w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 	fmt.Fprintf(w, "#\tJOB ID\tNAME\tSTATUS\tCONCLUSION\tSTARTED\tCOMPLETED\tDURATION\n")
@@ -423,7 +423,7 @@ func runShowJobs(cmd *cobra.Command, args []string) error {
 	}
 
 	w.Flush()
-	fmt.Printf("\n📊 Total: %d jobs\n", len(jobs))
+	fmt.Printf("\n Total: %d jobs\n", len(jobs))
 
 	// Show rerun options for failed jobs
 	showJobRerunOptions(runID, jobs)
@@ -755,7 +755,7 @@ func getStatusIcon(status, conclusion string) string {
 	case "queued":
 		return "🕰️"
 	case "in_progress":
-		return "🔄"
+		return ""
 	case "completed":
 		switch conclusion {
 		case "success":
@@ -765,7 +765,7 @@ func getStatusIcon(status, conclusion string) string {
 		case "cancelled":
 			return "🚫"
 		case "skipped":
-			return "⏭️"
+			return "⏭️ "
 		default:
 			return "❓"
 		}
@@ -783,7 +783,7 @@ func getConclusionIcon(conclusion string) string {
 	case "cancelled":
 		return "🚫"
 	case "skipped":
-		return "⏭️"
+		return "  ⏭️ "
 	case "neutral":
 		return "⚪"
 	case "timed_out":
@@ -980,7 +980,7 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 		} else {
 			// Clear screen and show current time
 			fmt.Printf("\033[2J\033[H")
-			fmt.Printf("🔄 Last updated: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
+			fmt.Printf(" Last updated: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
 			// Show only recent runs (limit to 10)
 			limit := 10
@@ -1037,7 +1037,7 @@ func runRerunWorkflow(cmd *cobra.Command, args []string) error {
 		rerunFailed, _ = cmd.Flags().GetBool("failed-only")
 	}
 
-	fmt.Printf("🔄 Rerunning workflow run %d", runID)
+	fmt.Printf(" Rerunning workflow run %d", runID)
 	if rerunFailed {
 		fmt.Print(" (failed jobs only)")
 	}
@@ -1056,8 +1056,8 @@ func runRerunWorkflow(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to rerun workflow: %w", err)
 	}
 
-	fmt.Printf("✅ Successfully triggered rerun for workflow run %d\n", runID)
-	fmt.Println("💡 Use 'gha actions runs' to check the status")
+	fmt.Printf("Successfully triggered rerun for workflow run %d\n", runID)
+	fmt.Println("Use 'gha actions runs' to check the status")
 
 	return nil
 }
@@ -1116,7 +1116,7 @@ func runTriggerWorkflow(cmd *cobra.Command, args []string) error {
 
 	// If workflow has inputs, automatically use interactive mode
 	if len(workflowInputs) > 0 {
-		fmt.Printf("🎯 Workflow '%s' requires inputs. Starting interactive mode...\n\n", workflowName)
+		fmt.Printf("Workflow '%s' requires inputs. Starting interactive mode...\n\n", workflowName)
 		ref, inputs, err = runInteractiveTrigger(ctx, token, owner, repo, workflowID)
 		if err != nil {
 			return err
@@ -1134,7 +1134,7 @@ func runTriggerWorkflow(cmd *cobra.Command, args []string) error {
 			}
 		}
 
-		fmt.Printf("🚀 Triggering workflow '%s' on ref '%s' (no inputs required)\n", workflowName, ref)
+		fmt.Printf("Triggering workflow '%s' on ref '%s' (no inputs required)\n", workflowName, ref)
 	}
 
 	if len(workflowInputs) == 0 {
@@ -1147,8 +1147,8 @@ func runTriggerWorkflow(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to trigger workflow: %w", err)
 	}
 
-	fmt.Printf("✅ Successfully triggered workflow '%s'\n", workflowName)
-	fmt.Println("💡 Use 'gha actions runs' to check the status")
+	fmt.Printf("Successfully triggered workflow '%s'\n", workflowName)
+	fmt.Println("Use 'gha actions runs' to check the status")
 
 	return nil
 }
@@ -1231,7 +1231,7 @@ func resolveWorkflowID(ctx context.Context, token, owner, repo, identifier strin
 }
 
 func runInteractiveTrigger(ctx context.Context, token, owner, repo string, workflowID interface{}) (string, map[string]string, error) {
-	fmt.Println("🎯 Interactive Workflow Trigger")
+	fmt.Println("Interactive Workflow Trigger")
 	fmt.Println()
 
 	// Get workflow details
@@ -1289,7 +1289,7 @@ func runInteractiveTrigger(ctx context.Context, token, owner, repo string, workf
 	}
 
 	if len(workflowInputs) > 0 {
-		fmt.Printf("\n📝 Workflow Inputs:\n")
+		fmt.Printf("\nWorkflow Inputs:\n")
 		for inputName, inputDef := range workflowInputs {
 			// Show input description
 			description := inputDef.Description
@@ -1324,7 +1324,7 @@ func runInteractiveTrigger(ctx context.Context, token, owner, repo string, workf
 
 			// Check required fields
 			if inputDef.Required && value == "" {
-				fmt.Printf("❌ %s is required. Please provide a value.\n", inputName)
+				fmt.Printf("%s is required. Please provide a value.\n", inputName)
 				fmt.Printf("%s: ", prompt)
 				valueInput, _ = reader.ReadString('\n')
 				value = strings.TrimSpace(valueInput)
@@ -1335,7 +1335,7 @@ func runInteractiveTrigger(ctx context.Context, token, owner, repo string, workf
 			}
 		}
 	} else {
-		fmt.Println("\n📝 No workflow inputs defined or unable to parse workflow file.")
+		fmt.Println("\nNo workflow inputs defined or unable to parse workflow file.")
 		fmt.Println("You can still provide custom inputs if needed.")
 		fmt.Println("\nEnter additional inputs (press Enter with empty key to finish):")
 
@@ -1358,7 +1358,7 @@ func runInteractiveTrigger(ctx context.Context, token, owner, repo string, workf
 	}
 
 	// Confirmation
-	fmt.Printf("\n📋 Summary:\n")
+	fmt.Printf("\n Summary:\n")
 	fmt.Printf("  Workflow: %s\n", workflowName)
 	fmt.Printf("  Reference: %s\n", ref)
 	if len(inputs) > 0 {
@@ -1505,7 +1505,7 @@ func showRerunOptions(runs []gh.WorkflowRun) {
 	}
 
 	if len(failedRuns) > 0 {
-		fmt.Printf("\n🔄 Quick Rerun Options:\n")
+		fmt.Printf("\n Quick Rerun Options:\n")
 		for i, run := range failedRuns {
 			if i >= 3 { // Show only first 3 failed runs
 				break
@@ -1516,7 +1516,7 @@ func showRerunOptions(runs []gh.WorkflowRun) {
 	}
 
 	if len(completedRuns) > 0 && len(failedRuns) == 0 {
-		fmt.Printf("\n🔄 Rerun latest completed run:\n")
+		fmt.Printf("\n Rerun latest completed run:\n")
 		fmt.Printf("  gha actions --rerun %d\n", completedRuns[0].ID)
 	}
 
@@ -1535,18 +1535,18 @@ func showJobRerunOptions(runID int64, jobs []gh.Job) {
 	}
 
 	if hasFailedJobs {
-		fmt.Printf("\n🔄 Rerun Options:\n")
+		fmt.Printf("\n Rerun Options:\n")
 		fmt.Printf("  gha actions --rerun %d              # Rerun all jobs\n", runID)
 		fmt.Printf("  gha actions --rerun %d --rerun-failed  # Rerun failed jobs only\n", runID)
 
 		if len(failedJobs) <= 3 {
-			fmt.Printf("\n❌ Failed jobs:\n")
+			fmt.Printf("\n Failed jobs:\n")
 			for _, job := range failedJobs {
 				fmt.Printf("  - %s (ID: %d)\n", job.Name, job.ID)
 			}
 		}
 	} else {
-		fmt.Printf("\n🔄 Rerun all jobs:\n")
+		fmt.Printf("\n Rerun all jobs:\n")
 		fmt.Printf("  gha actions --rerun %d\n", runID)
 	}
 
@@ -1593,7 +1593,7 @@ func showWorkflowTriggerOptions(workflows []gh.Workflow) {
 		return // No triggerable workflows
 	}
 
-	fmt.Printf("\n🚀 Trigger Workflows (with workflow_dispatch):\n")
+	fmt.Printf("\n Trigger Workflows (with workflow_dispatch):\n")
 	for i, workflow := range triggerableWorkflows {
 		if i >= 5 { // Show only first 5 workflows
 			break
