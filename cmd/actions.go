@@ -1599,7 +1599,6 @@ func showWorkflowTriggerOptions(workflows []gh.Workflow) {
 			break
 		}
 		fmt.Printf("  gha actions --trigger \"%s\"                    # Auto-detects inputs\n", workflow.Name)
-		fmt.Printf("  gha actions trigger \"%s\"                      # Same as above\n", workflow.Name)
 	}
 	fmt.Println()
 }
