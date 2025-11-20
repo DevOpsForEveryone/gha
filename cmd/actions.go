@@ -932,39 +932,43 @@ func runWatchRuns(cmd *cobra.Command, args []string) error {
 				return err
 			}
 			runs, err = client.GetWorkflowRuns(ctx, owner, repo, workflowID)
+			if err != nil {
+				fmt.Printf("Error fetching runs: %v\n", err)
+				continue
+			}
 		} else {
 			// Watch all runs
 			runs, err = client.GetAllWorkflowRuns(ctx, owner, repo)
+			if err != nil {
+				fmt.Printf("Error fetching runs: %v\n", err)
+				continue
+			}
 		}
 
-		if err != nil {
-			fmt.Printf("Error fetching runs: %v\n", err)
-		} else {
-			// Clear screen and show current time
-			fmt.Printf("\033[2J\033[H")
-			fmt.Printf(" Last updated: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
+		// Clear screen and show current time
+		fmt.Printf("\033[2J\033[H")
+		fmt.Printf(" Last updated: %s\n\n", time.Now().Format("2006-01-02 15:04:05"))
 
-			// Show only recent runs (limit to 10)
-			limit := 10
-			if len(runs) > limit {
-				runs = runs[:limit]
-			}
-
-			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
-			fmt.Fprintf(w, "RUN ID\tWORKFLOW\tSTATUS\tBRANCH\tCREATED\n")
-
-			for _, run := range runs {
-				statusIcon := getStatusIcon(run.Status, run.Conclusion)
-				fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n",
-					run.ID,
-					run.Name,
-					statusIcon,
-					run.Status,
-					run.HeadBranch,
-					formatTimeAgo(run.CreatedAt))
-			}
-			w.Flush()
+		// Show only recent runs (limit to 10)
+		limit := 10
+		if len(runs) > limit {
+			runs = runs[:limit]
 		}
+
+		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
+		fmt.Fprintf(w, "RUN ID\tWORKFLOW\tSTATUS\tBRANCH\tCREATED\n")
+
+		for _, run := range runs {
+			statusIcon := getStatusIcon(run.Status, run.Conclusion)
+			fmt.Fprintf(w, "%d\t%s\t%s %s\t%s\t%s\n",
+				run.ID,
+				run.Name,
+				statusIcon,
+				run.Status,
+				run.HeadBranch,
+				formatTimeAgo(run.CreatedAt))
+		}
+		w.Flush()
 
 		time.Sleep(time.Duration(interval) * time.Second)
 	}
