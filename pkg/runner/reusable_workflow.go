@@ -11,9 +11,9 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/common/git"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common/git"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 func newLocalReusableWorkflowExecutor(rc *RunContext) common.Executor {

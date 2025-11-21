@@ -20,8 +20,8 @@ import (
 	assert "github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v3"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 var (

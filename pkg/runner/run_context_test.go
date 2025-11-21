@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/exprparser"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 	"github.com/golang-jwt/jwt/v5"
 
 	log "github.com/sirupsen/logrus"
@@ -143,7 +143,7 @@ func TestRunContext_EvalBool(t *testing.T) {
 		{in: "${{ env.SOMETHING_FALSE == 'true' }} && true", out: true},
 		{in: "true && ${{ env.SOMETHING_FALSE == 'true' }}", out: true},
 		// Check github context
-		{in: "github.actor == 'DevOpsForEveryone/gha'", out: true},
+		{in: "github.actor == 'Leapfrog-DevOps/gha'", out: true},
 		{in: "github.actor == 'unknown'", out: false},
 		{in: "github.job == 'job1'", out: true},
 		// The special ACT flag
@@ -367,17 +367,17 @@ func TestGetGitHubContext(t *testing.T) {
 
 	log.Debugf("%v", ghc)
 
-	actor := "DevOpsForEveryone/gha"
+	actor := "Leapfrog-DevOps/gha"
 	if a := os.Getenv("ACT_ACTOR"); a != "" {
 		actor = a
 	}
 
-	repo := "DevOpsForEveryone/gha"
+	repo := "Leapfrog-DevOps/gha"
 	if r := os.Getenv("ACT_REPOSITORY"); r != "" {
 		repo = r
 	}
 
-	owner := "DevOpsForEveryone"
+	owner := "Leapfrog-DevOps"
 	if o := os.Getenv("ACT_OWNER"); o != "" {
 		owner = o
 	}

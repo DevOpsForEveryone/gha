@@ -20,9 +20,9 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 	"golang.org/x/term"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/filecollector"
-	"github.com/DevOpsForEveryone/gha/pkg/lookpath"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/filecollector"
+	"github.com/Leapfrog-DevOps/gha/pkg/lookpath"
 )
 
 type HostEnvironment struct {

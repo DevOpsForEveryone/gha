@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/container"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/container"
 	"github.com/stretchr/testify/mock"
 )
 

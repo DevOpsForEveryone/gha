@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/common/git"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common/git"
 )
 
 type GithubContext struct {
@@ -170,8 +170,8 @@ func (ghc *GithubContext) SetRepositoryAndOwner(ctx context.Context, githubInsta
 		repo, err := git.FindGithubRepo(ctx, repoPath, githubInstance, remoteName)
 		if err != nil {
 			common.Logger(ctx).Debugf("unable to get git repo (githubInstance: %v; remoteName: %v, repoPath: %v): %v", githubInstance, remoteName, repoPath, err)
-			// DevOpsForEveryone/gha is used as a default action, so why not a repo?
-			ghc.Repository = "DevOpsForEveryone/gha"
+			// Leapfrog-DevOps/gha is used as a default action, so why not a repo?
+			ghc.Repository = "Leapfrog-DevOps/gha"
 			ghc.RepositoryOwner = strings.Split(ghc.Repository, "/")[0]
 			return
 		}

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 
 	"github.com/sirupsen/logrus"
 )

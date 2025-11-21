@@ -22,8 +22,8 @@ jobs:
   remote-invalid-step:
     runs-on: ubuntu-latest
     steps:
-    - uses: DevOpsForEveryone/gha-test-actions/invalid-composite-action/invalid-step@main
+    - uses: Leapfrog-DevOps/gha-test-actions/invalid-composite-action/invalid-step@main
   remote-missing-steps:
     runs-on: ubuntu-latest
     steps:
-    - uses: DevOpsForEveryone/gha-test-actions/invalid-composite-action/missing-steps@main
+    - uses: Leapfrog-DevOps/gha-test-actions/invalid-composite-action/missing-steps@main

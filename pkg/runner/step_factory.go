@@ -3,7 +3,7 @@ package runner
 import (
 	"fmt"
 
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 type stepFactory interface {

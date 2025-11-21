@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/container"
-	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/container"
+	"github.com/Leapfrog-DevOps/gha/pkg/exprparser"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 	"github.com/docker/go-connections/nat"
 	"github.com/opencontainers/selinux/go-selinux"
 )
@@ -937,7 +937,7 @@ func (rc *RunContext) getGithubContext(ctx context.Context) *model.GithubContext
 	// Backwards compatibility for configs that require
 	// a default rather than being run as a cmd
 	if ghc.Actor == "" {
-		ghc.Actor = "DevOpsForEveryone/gha"
+		ghc.Actor = "Leapfrog-DevOps/gha"
 	}
 
 	if rc.EventJSON != "" {

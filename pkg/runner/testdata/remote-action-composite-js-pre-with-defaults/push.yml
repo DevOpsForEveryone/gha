@@ -5,19 +5,19 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: DevOpsForEveryone/gha-test-actions/composite-js-pre-with-defaults/js@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-js-pre-with-defaults/js@main
       with:
         in: nix
-    - uses: DevOpsForEveryone/gha-test-actions/composite-js-pre-with-defaults@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-js-pre-with-defaults@main
       with:
         in: secretval
-    - uses: DevOpsForEveryone/gha-test-actions/composite-js-pre-with-defaults@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-js-pre-with-defaults@main
       with:
         in: secretval
-    - uses: DevOpsForEveryone/gha-test-actions/composite-js-pre-with-defaults/js@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-js-pre-with-defaults/js@main
       with:
         pre: "true"
         in: nix
-    - uses: DevOpsForEveryone/gha-test-actions/composite-js-pre-with-defaults/js@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-js-pre-with-defaults/js@main
       with:
         in: nix

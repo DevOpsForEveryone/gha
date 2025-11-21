@@ -3,8 +3,8 @@ package main
 import (
 	_ "embed"
 
-	"github.com/DevOpsForEveryone/gha/cmd"
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/cmd"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 )
 
 //go:embed VERSION

@@ -8,8 +8,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/DevOpsForEveryone/gha/pkg/exprparser"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/exprparser"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 	assert "github.com/stretchr/testify/assert"
 	yaml "gopkg.in/yaml.v3"
 )
@@ -116,7 +116,7 @@ func TestEvaluateRunContext(t *testing.T) {
 		{"always()", true, ""},
 		{"cancelled()", false, ""},
 		{"github.workflow", "test-workflow", ""},
-		{"github.actor", "DevOpsForEveryone/gha", ""},
+		{"github.actor", "Leapfrog-DevOps/gha", ""},
 		{"github.run_id", "1", ""},
 		{"github.run_number", "1", ""},
 		{"job.status", "success", ""},

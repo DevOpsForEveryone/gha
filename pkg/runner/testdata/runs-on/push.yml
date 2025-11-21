@@ -7,18 +7,18 @@ jobs:
     steps:
     - run: env
     - run: echo ${GITHUB_ACTOR}
-    - run: echo ${GITHUB_ACTOR} | grep DevOpsForEveryone/gha
+    - run: echo ${GITHUB_ACTOR} | grep Leapfrog-DevOps/gha
 
   many:
     runs-on: [ubuntu-latest]
     steps:
       - run: env
       - run: echo ${GITHUB_ACTOR}
-      - run: echo ${GITHUB_ACTOR} | grep DevOpsForEveryone/gha
+      - run: echo ${GITHUB_ACTOR} | grep Leapfrog-DevOps/gha
 
   selfmany:
     runs-on: [self-hosted, ubuntu-latest]
     steps:
       - run: env
       - run: echo ${GITHUB_ACTOR}
-      - run: echo ${GITHUB_ACTOR} | grep DevOpsForEveryone/gha
+      - run: echo ${GITHUB_ACTOR} | grep Leapfrog-DevOps/gha

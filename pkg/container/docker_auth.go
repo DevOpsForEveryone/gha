@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 	"github.com/docker/cli/cli/config"
 	"github.com/docker/cli/cli/config/credentials"
 	"github.com/docker/docker/api/types/registry"

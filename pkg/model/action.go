@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/DevOpsForEveryone/gha/pkg/schema"
+	"github.com/Leapfrog-DevOps/gha/pkg/schema"
 	"gopkg.in/yaml.v3"
 )
 

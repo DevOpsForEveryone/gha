@@ -27,7 +27,7 @@ jobs:
             exit 1
           fi
 
-      - uses: DevOpsForEveryone/gha-test-actions/composite@main
+      - uses: Leapfrog-DevOps/gha-test-actions/composite@main
         with:
           input: some input
 

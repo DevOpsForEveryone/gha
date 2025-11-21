@@ -17,8 +17,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/DevOpsForEveryone/gha/pkg/model"
-	"github.com/DevOpsForEveryone/gha/pkg/runner"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/runner"
 )
 
 type writableMapFile struct {

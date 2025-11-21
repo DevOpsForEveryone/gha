@@ -1,5 +1,5 @@
 name: docker-url
-author: DevOpsForEveryone
+author: Leapfrog-DevOps
 description: testing
 inputs:
   who-to-greet:

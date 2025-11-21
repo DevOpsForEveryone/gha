@@ -20,7 +20,7 @@ import (
 	"github.com/timshannon/bolthold"
 	"go.etcd.io/bbolt"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 )
 
 const (

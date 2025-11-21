@@ -1,4 +1,4 @@
-module github.com/DevOpsForEveryone/gha
+module github.com/Leapfrog-DevOps/gha
 
 go 1.24
 

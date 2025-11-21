@@ -10,4 +10,4 @@ jobs:
       - name: print env.variable
         run: |
           echo ${{ env.variable }}
-          exit ${{ (env.variable == 'DevOpsForEveryone') && '0' || '1'}}
+          exit ${{ (env.variable == 'Leapfrog-DevOps') && '0' || '1'}}

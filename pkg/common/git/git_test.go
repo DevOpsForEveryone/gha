@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 )
 
 func TestFindGitSlug(t *testing.T) {
@@ -26,12 +26,12 @@ func TestFindGitSlug(t *testing.T) {
 	}{
 		{"https://git-codecommit.us-east-1.amazonaws.com/v1/repos/my-repo-name", "CodeCommit", "my-repo-name"},
 		{"ssh://git-codecommit.us-west-2.amazonaws.com/v1/repos/my-repo", "CodeCommit", "my-repo"},
-		{"git@github.com:DevOpsForEveryone/gha.git", "GitHub", "DevOpsForEveryone/gha"},
-		{"git@github.com:DevOpsForEveryone/gha", "GitHub", "DevOpsForEveryone/gha"},
-		{"https://github.com/DevOpsForEveryone/gha.git", "GitHub", "DevOpsForEveryone/gha"},
-		{"http://github.com/DevOpsForEveryone/gha.git", "GitHub", "DevOpsForEveryone/gha"},
-		{"https://github.com/DevOpsForEveryone/gha", "GitHub", "DevOpsForEveryone/gha"},
-		{"http://github.com/DevOpsForEveryone/gha", "GitHub", "DevOpsForEveryone/gha"},
+		{"git@github.com:Leapfrog-DevOps/gha.git", "GitHub", "Leapfrog-DevOps/gha"},
+		{"git@github.com:Leapfrog-DevOps/gha", "GitHub", "Leapfrog-DevOps/gha"},
+		{"https://github.com/Leapfrog-DevOps/gha.git", "GitHub", "Leapfrog-DevOps/gha"},
+		{"http://github.com/Leapfrog-DevOps/gha.git", "GitHub", "Leapfrog-DevOps/gha"},
+		{"https://github.com/Leapfrog-DevOps/gha", "GitHub", "Leapfrog-DevOps/gha"},
+		{"http://github.com/Leapfrog-DevOps/gha", "GitHub", "Leapfrog-DevOps/gha"},
 		{"git+ssh://git@github.com/owner/repo.git", "GitHub", "owner/repo"},
 		{"http://myotherrepo.com/gha.git", "", "http://myotherrepo.com/gha.git"},
 	}

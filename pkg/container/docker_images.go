@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 	cerrdefs "github.com/containerd/errdefs"
 	"github.com/docker/docker/api/types/image"
 )

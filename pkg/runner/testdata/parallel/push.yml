@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: docker://node:16-buster-slim
         with:
-          args: echo ${GITHUB_REF} | grep DevOpsForEveryone/gha
+          args: echo ${GITHUB_REF} | grep Leapfrog-DevOps/gha
       - uses: ./actions/docker-url
         with:
           args: npm install -g qs

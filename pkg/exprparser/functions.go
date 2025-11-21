@@ -15,7 +15,7 @@ import (
 
 	"github.com/go-git/go-git/v5/plumbing/format/gitignore"
 
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 	"github.com/rhysd/actionlint"
 )
 

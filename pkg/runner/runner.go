@@ -7,8 +7,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 	docker_container "github.com/docker/docker/api/types/container"
 	log "github.com/sirupsen/logrus"
 )

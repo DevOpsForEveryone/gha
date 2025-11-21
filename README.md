@@ -1,6 +1,6 @@
 # GHA - GitHub Actions Runner
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/DevOpsForEveryone/gha/releases)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Leapfrog-DevOps/gha/releases)
 [![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8.svg)](https://golang.org)
 [![Docker](https://img.shields.io/badge/docker-20.10+-2496ED.svg)](https://docker.com)
 
@@ -99,11 +99,11 @@ gha push --watch
 
 ### Download Binary
 
-Download the latest release from the [releases page](https://github.com/DevOpsForEveryone/gha/releases):
+Download the latest release from the [releases page](https://github.com/Leapfrog-DevOps/gha/releases):
 
 ```bash
 # Linux/macOS
-curl -L https://github.com/DevOpsForEveryone/gha/releases/latest/download/gha-linux-amd64 -o gha
+curl -L https://github.com/Leapfrog-DevOps/gha/releases/latest/download/gha-linux-amd64 -o gha
 chmod +x gha
 sudo mv gha /usr/local/bin/
 ```
@@ -120,7 +120,7 @@ sudo mv gha /usr/local/bin/
 
 ```bash
 # Clone the repository
-git clone https://github.com/DevOpsForEveryone/gha.git
+git clone https://github.com/Leapfrog-DevOps/gha.git
 cd gha
 
 # Run tests
@@ -312,7 +312,7 @@ If no event name is provided, GHA defaults to "push" or uses the only available 
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--actor` | User that triggered the event (default: "DevOpsForEveryone/gha") | `gha push --actor username` |
+| `--actor` | User that triggered the event (default: "Leapfrog-DevOps/gha") | `gha push --actor username` |
 | `--defaultbranch` | Name of the default branch | `gha push --defaultbranch main` |
 | `--remote-name` | Git remote name for repo URL | `gha push --remote-name upstream` |
 | `--github-instance` | GitHub instance URL (for Enterprise) | `gha push --github-instance github.company.com` |
@@ -1526,9 +1526,9 @@ du -sh /var/lib/docker
 
 #### Community Support
 
-- **GitHub Issues**: [Report bugs and request features](https://github.com/DevOpsForEveryone/gha/issues)
-- **Discussions**: [Ask questions and share tips](https://github.com/DevOpsForEveryone/gha/discussions)
-- **Documentation**: [Official documentation](https://github.com/DevOpsForEveryone/gha)
+- **GitHub Issues**: [Report bugs and request features](https://github.com/Leapfrog-DevOps/gha/issues)
+- **Discussions**: [Ask questions and share tips](https://github.com/Leapfrog-DevOps/gha/discussions)
+- **Documentation**: [Official documentation](https://github.com/Leapfrog-DevOps/gha)
 
 #### Before Reporting Issues
 
@@ -1569,7 +1569,7 @@ gha push --verbose --dryrun
 
 ```bash
 # Clone the repository
-git clone https://github.com/DevOpsForEveryone/gha.git
+git clone https://github.com/Leapfrog-DevOps/gha.git
 cd gha
 
 # Install dependencies

@@ -14,9 +14,9 @@ import (
 
 	gogit "github.com/go-git/go-git/v5"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/common/git"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common/git"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 type stepActionRemote struct {

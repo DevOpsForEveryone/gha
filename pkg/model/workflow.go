@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/schema"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/schema"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
@@ -74,7 +74,7 @@ func (w *Workflow) UnmarshalYAML(node *yaml.Node) error {
 		Definition: "workflow-root",
 		Schema:     schema.GetWorkflowSchema(),
 	}).UnmarshalYAML(node); err != nil {
-		return errors.Join(err, fmt.Errorf("Actions YAML Schema Validation Error detected:\nFor more information, see: https://github.com/DevOpsForEveryone/gha/blob/main/README.md"))
+		return errors.Join(err, fmt.Errorf("Actions YAML Schema Validation Error detected:\nFor more information, see: https://github.com/Leapfrog-DevOps/gha/blob/main/README.md"))
 	}
 	type WorkflowDefault Workflow
 	return node.Decode((*WorkflowDefault)(w))
@@ -88,7 +88,7 @@ func (w *WorkflowStrict) UnmarshalYAML(node *yaml.Node) error {
 		Definition: "workflow-root-strict",
 		Schema:     schema.GetWorkflowSchema(),
 	}).UnmarshalYAML(node); err != nil {
-		return errors.Join(err, fmt.Errorf("Actions YAML Strict Schema Validation Error detected:\nFor more information, see: https://github.com/DevOpsForEveryone/gha/blob/main/README.md"))
+		return errors.Join(err, fmt.Errorf("Actions YAML Strict Schema Validation Error detected:\nFor more information, see: https://github.com/Leapfrog-DevOps/gha/blob/main/README.md"))
 	}
 	type WorkflowDefault Workflow
 	return node.Decode((*WorkflowDefault)(w))

@@ -29,7 +29,7 @@ func TestContainerPath(t *testing.T) {
 		rootDrive := os.Getenv("SystemDrive")
 		rootDriveLetter := strings.ReplaceAll(strings.ToLower(rootDrive), `:`, "")
 		for _, v := range []containerPathJob{
-			{"/mnt/c/Users/gha/go/src/github.com/DevOpsForEveryone/gha", "C:\\Users\\gha\\go\\src\\github.com\\DevOpsForEveryone\\gha\\", ""},
+			{"/mnt/c/Users/gha/go/src/github.com/Leapfrog-DevOps/gha", "C:\\Users\\gha\\go\\src\\github.com\\Leapfrog-DevOps\\gha\\", ""},
 			{"/mnt/f/work/dir", `F:\work\dir`, ""},
 			{"/mnt/c/windows/to/unix", "windows\\to\\unix", fmt.Sprintf("%s\\", rootDrive)},
 			{fmt.Sprintf("/mnt/%v/gha", rootDriveLetter), "gha", fmt.Sprintf("%s\\", rootDrive)},
@@ -53,7 +53,7 @@ func TestContainerPath(t *testing.T) {
 			log.Error(err)
 		}
 		for _, v := range []containerPathJob{
-			{"/home/gha/go/src/github.com/DevOpsForEveryone/gha", "/home/gha/go/src/github.com/DevOpsForEveryone/gha", ""},
+			{"/home/gha/go/src/github.com/Leapfrog-DevOps/gha", "/home/gha/go/src/github.com/Leapfrog-DevOps/gha", ""},
 			{"/home/gha", `/home/gha/`, ""},
 			{cwd, ".", ""},
 		} {

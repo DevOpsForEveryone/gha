@@ -18,8 +18,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/DevOpsForEveryone/gha/pkg/cache"
-	"github.com/DevOpsForEveryone/gha/pkg/gh"
+	"github.com/Leapfrog-DevOps/gha/pkg/cache"
+	"github.com/Leapfrog-DevOps/gha/pkg/gh"
 )
 
 type WorkflowInput struct {

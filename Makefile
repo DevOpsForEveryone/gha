@@ -87,7 +87,7 @@ install: build
 .PHONY: installer
 installer:
 	@GO111MODULE=off go get github.com/goreleaser/godownloader
-	godownloader -r DevOpsForEveryone/gha -o install.sh
+	godownloader -r Leapfrog-DevOps/gha -o install.sh
 
 .PHONY: promote
 promote:

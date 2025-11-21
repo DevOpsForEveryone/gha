@@ -5,4 +5,4 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: DevOpsForEveryone/gha-test-actions/composite-assert-action-ref-action@main
+    - uses: Leapfrog-DevOps/gha-test-actions/composite-assert-action-ref-action@main

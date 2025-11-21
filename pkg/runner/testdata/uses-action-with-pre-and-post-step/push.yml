@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./uses-action-with-pre-and-post-step/last-action
-      - uses: DevOpsForEveryone/gha-test-actions/js-with-pre-and-post-step@main
+      - uses: Leapfrog-DevOps/gha-test-actions/js-with-pre-and-post-step@main
         with:
           pre: true
           post: true

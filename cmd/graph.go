@@ -3,8 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 func drawGraph(plan *model.Plan) error {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 	git "github.com/go-git/go-git/v5"
 	config "github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"

@@ -21,7 +21,7 @@ jobs:
     #
     - name: use remote composite action
       id: remote-composite
-      uses: DevOpsForEveryone/gha-test-actions/composite@main
+      uses: Leapfrog-DevOps/gha-test-actions/composite@main
       with:
         input: ${{ steps.set-output.outputs.var }}
     - name: test remote composite output

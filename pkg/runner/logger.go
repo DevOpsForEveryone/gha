@@ -9,7 +9,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/term"

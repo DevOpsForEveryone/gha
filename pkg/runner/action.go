@@ -16,9 +16,9 @@ import (
 
 	"github.com/kballard/go-shellquote"
 
-	"github.com/DevOpsForEveryone/gha/pkg/common"
-	"github.com/DevOpsForEveryone/gha/pkg/container"
-	"github.com/DevOpsForEveryone/gha/pkg/model"
+	"github.com/Leapfrog-DevOps/gha/pkg/common"
+	"github.com/Leapfrog-DevOps/gha/pkg/container"
+	"github.com/Leapfrog-DevOps/gha/pkg/model"
 )
 
 type actionStep interface {
@@ -228,7 +228,7 @@ func setupActionEnv(ctx context.Context, step actionStep, _ *remoteAction) error
 	return nil
 }
 
-// https://github.com/DevOpsForEveryone/gha/issues/228#issuecomment-629709055
+// https://github.com/Leapfrog-DevOps/gha/issues/228#issuecomment-629709055
 // files in .gitignore are not copied in a Docker container
 // this causes issues with actions that ignore other important resources
 // such as `node_modules` for example

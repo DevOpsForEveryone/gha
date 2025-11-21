@@ -60,7 +60,7 @@ func loadVersionNotices(version string) {
 	}()
 }
 
-const NoticeURL = "https://api.github.com/repos/DevOpsForEveryone/gha/releases/latest"
+const NoticeURL = "https://api.github.com/repos/Leapfrog-DevOps/gha/releases/latest"
 
 func getVersionNotices(version string) []Notice {
 	if os.Getenv("ACT_DISABLE_VERSION_CHECK") == "1" {
